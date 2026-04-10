@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "Y",
+    "public": "exaguru-command-center",
     "ignore": [
       "firebase.json",
       "**/.*",
