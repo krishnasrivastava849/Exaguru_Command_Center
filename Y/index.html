@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ExaGuru — Command Center v7</title>
+<title>ExaGuru — Command Center v8</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -284,6 +284,54 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 
 @media(max-width:900px){.stats-row{grid-template-columns:repeat(3,1fr)}.sidebar{display:none}.task-table th:nth-child(n+6),.task-table td:nth-child(n+6){display:none}.tm-stats{grid-template-columns:repeat(2,1fr)}.clock-hero{flex-direction:column}.tm-status-panel{width:100%}}
 @media(max-width:600px){.stats-row,.tm-stats{grid-template-columns:repeat(2,1fr)}.main,.tm-main{padding:12px}.clock-time-display{font-size:32px}}
+
+/* ============================================================
+   ADHOC TASKS STYLES
+   ============================================================ */
+.adhoc-main{padding:20px;max-width:1400px;margin:0 auto}
+.adhoc-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:20px}
+.adhoc-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;border-left:3px solid transparent;text-align:center}
+.adhoc-stat.as-total{border-left-color:var(--blue)}.adhoc-stat.as-completed{border-left-color:var(--green)}.adhoc-stat.as-pending{border-left-color:var(--yellow)}.adhoc-stat.as-progress{border-left-color:var(--purple)}.adhoc-stat.as-overdue{border-left-color:var(--orange)}.adhoc-stat.as-failed{border-left-color:var(--red)}
+.adhoc-stat .stat-label{font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:500}
+.adhoc-stat .stat-value{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
+.as-total .stat-value{color:var(--blue)}.as-completed .stat-value{color:var(--green)}.as-pending .stat-value{color:var(--yellow)}.as-progress .stat-value{color:var(--purple)}.as-overdue .stat-value{color:var(--orange)}.as-failed .stat-value{color:var(--red)}
+.adhoc-progress-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:20px}
+.adhoc-progress-title{font-weight:600;font-size:14px;margin-bottom:14px;color:var(--text)}
+.assignee-progress-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.ap-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px}
+.ap-card-name{font-weight:600;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.ap-card-stats{font-size:12px;color:var(--text3);line-height:1.8}
+.ap-card-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px}
+.ap-card-fill{height:100%;border-radius:2px;background:var(--green);transition:width .5s}
+.ap-card-pct{font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--mono)}
+.adhoc-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.adhoc-table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.adhoc-table-title{font-weight:600;font-size:14px}
+.adhoc-add-btn{background:var(--brand);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-family:var(--font);font-weight:600;font-size:13px;cursor:pointer;transition:.15s}
+.adhoc-add-btn:hover{background:var(--brand-dark)}
+.adhoc-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.adhoc-filter-sel{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:var(--font);font-size:12px;outline:none;cursor:pointer}
+.adhoc-table{width:100%;border-collapse:collapse}
+.adhoc-table th{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:9px 14px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);font-weight:600;white-space:nowrap}
+.adhoc-table tbody tr{border-bottom:1px solid var(--border);transition:background .08s}
+.adhoc-table tbody tr:hover{background:var(--surface2)}
+.adhoc-table tbody tr:last-child{border-bottom:none}
+.adhoc-table tbody tr.row-completed{opacity:.6}
+.adhoc-table td{padding:10px 14px;font-size:13px;vertical-align:middle}
+.adhoc-task-name{font-weight:500;color:var(--text)}
+.adhoc-task-name.strikethrough{text-decoration:line-through;color:var(--text3)}
+.adhoc-desc{font-size:11px;color:var(--text3);margin-top:2px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pri-badge{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;font-family:var(--mono);white-space:nowrap}
+.pri-urgent{background:#fef2f2;color:#dc2626}.pri-high{background:var(--orange-bg);color:var(--orange)}.pri-medium{background:var(--yellow-bg);color:var(--yellow)}.pri-low{background:var(--blue-bg);color:var(--blue)}
+[data-theme="dark"] .pri-urgent{background:rgba(220,38,38,.15)}
+.days-badge{font-family:var(--mono);font-size:11px;font-weight:600;white-space:nowrap}
+.days-overdue{color:var(--red)}.days-ok{color:var(--green)}.days-soon{color:var(--yellow)}
+.sys-status{font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;white-space:nowrap}
+.ss-failed{background:var(--red-bg);color:var(--red)}.ss-completed{background:var(--green-bg);color:var(--green)}.ss-active{background:var(--blue-bg);color:var(--blue)}.ss-pending{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+.prog-select{padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;border:1px solid transparent;outline:none;background:var(--surface2);color:var(--text)}
+.adhoc-footer-note{text-align:center;font-size:11px;color:var(--text3);padding:12px;border-top:1px solid var(--border);font-style:italic}
+@media(max-width:900px){.adhoc-stats{grid-template-columns:repeat(3,1fr)}.adhoc-table th:nth-child(n+4),.adhoc-table td:nth-child(n+4){display:none}}
+@media(max-width:600px){.adhoc-stats{grid-template-columns:repeat(2,1fr)}.adhoc-main{padding:12px}}
 </style>
 </head>
 <body>
@@ -298,7 +346,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 <div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-card">
     <div class="login-logo">Exa<span>Guru</span></div>
-    <div class="login-sub">Command Center v7</div>
+    <div class="login-sub">Command Center v8</div>
     <input class="login-input" id="loginUser" placeholder="Username" autofocus onkeydown="if(event.key==='Enter')doLogin()">
     <input class="login-input" id="loginPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
@@ -331,6 +379,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
   <div class="app-tabs">
     <button class="app-tab active" id="appTabTasks" onclick="switchAppTab('tasks')">📋 Task Management</button>
     <button class="app-tab" id="appTabTime" onclick="switchAppTab('time')">⏱ Time Management</button>
+    <button class="app-tab" id="appTabAdhoc" onclick="switchAppTab('adhoc')">🎯 Adhoc Tasks</button>
   </div>
 
   <!-- ═══════════════════ TASK MANAGEMENT PANEL ═══════════════════ -->
@@ -456,6 +505,55 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     </div>
   </div>
 
+  <!-- ═══════════════════ ADHOC TASKS PANEL ═══════════════════ -->
+  <div class="app-tab-panel" id="panelAdhoc">
+    <div class="adhoc-main">
+
+      <!-- STATS -->
+      <div class="adhoc-stats" id="adhocStats"></div>
+
+      <!-- PROGRESS BY ASSIGNEE -->
+      <div class="adhoc-progress-section">
+        <div class="adhoc-progress-title">Adhoc Task Progress by Assignee</div>
+        <div class="assignee-progress-grid" id="adhocAssigneeGrid"></div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="adhoc-table-wrap">
+        <div class="adhoc-table-header">
+          <div class="adhoc-table-title">Adhoc Tasks</div>
+          <div class="adhoc-filters">
+            <select class="adhoc-filter-sel" id="adhocAssigneeFilter" onchange="adhocRender()"><option value="all">All Assignees</option></select>
+            <select class="adhoc-filter-sel" id="adhocPriorityFilter" onchange="adhocRender()"><option value="all">All Priorities</option><option value="Urgent">Urgent</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+            <select class="adhoc-filter-sel" id="adhocStatusFilter" onchange="adhocRender()"><option value="all">All Progress</option><option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Confusion">Confusion</option></select>
+            <button class="export-btn" onclick="adhocExport()">📥 Export</button>
+            <button class="adhoc-add-btn" onclick="adhocOpenModal()">+ Add New Adhoc Task</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="adhoc-table">
+            <thead>
+              <tr>
+                <th>Task Name</th>
+                <th>Description</th>
+                <th>Assigned To</th>
+                <th>Priority</th>
+                <th>End Date</th>
+                <th>Days Remaining</th>
+                <th>System Status</th>
+                <th>Progress</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="adhocTableBody"></tbody>
+          </table>
+        </div>
+        <div class="adhoc-footer-note">Adhoc tasks are automatically marked as failed when the end date passes</div>
+      </div>
+
+    </div>
+  </div>
+
 </div><!-- end app-wrap -->
 
 <!-- TASK MODALS -->
@@ -479,6 +577,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     <div class="form-row"><label class="form-label">Break (minutes)</label><input type="number" class="form-input" id="tmManualBreak" value="0" min="0" max="120"></div>
     <div class="form-row"><label class="form-label">Note</label><input class="form-input" id="tmManualNote" placeholder="e.g. Work from home"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="tmCloseManual()">Cancel</button><button class="btn-save" onclick="tmSaveManual()">Save</button></div>
+  </div>
+</div>
+
+<!-- ADHOC TASK MODAL -->
+<div class="modal-overlay" id="adhocModalOverlay">
+  <div class="modal" style="width:500px">
+    <div class="modal-title" id="adhocModalTitle">Add Adhoc Task</div>
+    <div class="form-row"><label class="form-label">Task Name *</label><input class="form-input" id="fAdhocName" placeholder="e.g. Website Landing Page Creation"></div>
+    <div class="form-row"><label class="form-label">Description</label><textarea class="form-textarea" id="fAdhocDesc" placeholder="Describe the task..." style="min-height:60px"></textarea></div>
+    <div class="form-row-grid">
+      <div class="form-row"><label class="form-label">Assigned To *</label><select class="form-select" id="fAdhocAssignee"></select></div>
+      <div class="form-row"><label class="form-label">Priority</label><select class="form-select" id="fAdhocPriority"><option value="Urgent">Urgent</option><option value="High">High</option><option value="Medium" selected>Medium</option><option value="Low">Low</option></select></div>
+    </div>
+    <div class="form-row-grid">
+      <div class="form-row"><label class="form-label">End Date *</label><input type="date" class="form-input" id="fAdhocEndDate"></div>
+      <div class="form-row"><label class="form-label">Progress Status</label><select class="form-select" id="fAdhocProgress"><option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Confusion">Confusion</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="adhocCloseModal()">Cancel</button><button class="btn-save" onclick="adhocSaveTask()">Save</button></div>
   </div>
 </div>
 
@@ -646,12 +762,14 @@ function updateThemeBtn(){document.getElementById('themeBtn').textContent=docume
 function switchAppTab(tab){
   document.getElementById('panelTasks').classList.toggle('active',tab==='tasks');
   document.getElementById('panelTime').classList.toggle('active',tab==='time');
+  document.getElementById('panelAdhoc').classList.toggle('active',tab==='adhoc');
   document.getElementById('appTabTasks').classList.toggle('active',tab==='tasks');
   document.getElementById('appTabTime').classList.toggle('active',tab==='time');
-  // show/hide course switcher and add task btn only on tasks tab
+  document.getElementById('appTabAdhoc').classList.toggle('active',tab==='adhoc');
   document.getElementById('courseSwitcher').style.display=tab==='tasks'?'flex':'none';
   document.getElementById('addTaskBtn').style.display=tab==='tasks'?'block':'none';
   if(tab==='time'){tmRefreshAll()}
+  if(tab==='adhoc'){adhocRender()}
 }
 
 // COURSE
@@ -1015,7 +1133,7 @@ function tmUpdateGreeting(){
 }
 
 // MODAL CLOSE ON BACKDROP
-['modalOverlay','courseModalOverlay','teamModalOverlay','removeTeamModalOverlay','assetModalOverlay','userMgmtOverlay','tmManualOverlay'].forEach(function(id){
+['modalOverlay','courseModalOverlay','teamModalOverlay','removeTeamModalOverlay','assetModalOverlay','userMgmtOverlay','tmManualOverlay','adhocModalOverlay'].forEach(function(id){
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')})
 });
 
@@ -1042,9 +1160,268 @@ function showApp(){
     // update team view every 30s
     if(now.getSeconds()===0)tmRenderTeam();
   },1000);
-  loadData().then(function(){renderAll();startLiveListener();tmRenderStats();tmRenderTeam()});
+  loadData().then(function(){renderAll();startLiveListener();tmRenderStats();tmRenderTeam();adhocLoadFromFirestore().then(function(){adhocStartListener()})});
 }
 
+// ============================================================
+// ADHOC TASKS
+// ============================================================
+var adhocTasks=[];
+var adhocEditId=null;
+var adhocSaving=false;
+var unsubscribeAdhoc=null;
+
+async function adhocSaveToFirestore(){
+  if(adhocSaving)return;adhocSaving=true;syncStart();
+  try{
+    await setDoc(doc(db,'appdata','adhoc'),{data:adhocTasks});syncDone();
+  }catch(e){syncError('Adhoc save failed');try{localStorage.setItem('eg7_adhoc',JSON.stringify(adhocTasks))}catch(x){}}
+  finally{adhocSaving=false}
+}
+async function adhocLoadFromFirestore(){
+  try{var snap=await getDoc(doc(db,'appdata','adhoc'));if(snap.exists())adhocTasks=snap.data().data||[]}
+  catch(e){try{var a=localStorage.getItem('eg7_adhoc');if(a)adhocTasks=JSON.parse(a)}catch(x){}}
+  // Seed default tasks if empty
+  if(!adhocTasks.length){
+    var seed=[
+      {id:'adhoc_001',name:'Website Landing Page Creation',description:'Website Landing Page Creation',assignee:'Abdul',priority:'Urgent',endDate:'2026-02-09',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_002',name:'Update the footer freeze in clickfunnel',description:'The footer is not working',assignee:'Abdul',priority:'Urgent',endDate:'2026-02-21',progress:'In Progress',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_003',name:'Engagelo (Undelivered Broadcast Messages)',description:'Messages not delivering to Candidates',assignee:'Sachin',priority:'Medium',endDate:'2026-02-21',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_004',name:'Website Go Live',description:'Go live with new design of Exaguru',assignee:'Abdul',priority:'High',endDate:'2026-02-23',progress:'In Progress',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_005',name:'Update Linkedin Account Ashish',description:'Linked profile Update',assignee:'Ashish',priority:'Urgent',endDate:'2026-02-23',progress:'Completed',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_006',name:'International Payment Enable for Trainingbuzz',description:'International Payment Enable for Trainingbuzz',assignee:'Ashish',priority:'Urgent',endDate:'2026-02-23',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_007',name:'Zoom Pro (100 Participants)',description:'Need to talk to Sullus for the monthly or yearly plan',assignee:'Ashish',priority:'Medium',endDate:'2026-02-23',progress:'In Progress',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_008',name:'Email should go in Inbox',description:'Emails are going in promotions',assignee:'Abdul',priority:'Urgent',endDate:'2026-02-23',progress:'In Progress',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_009',name:'Prepare a time sheet',description:'9 hour per day is mandatory',assignee:'Ashish',priority:'Urgent',endDate:'2026-02-23',progress:'Completed',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_010',name:'calendly autopay disable',description:'No description',assignee:'Sachin',priority:'Urgent',endDate:'2026-02-24',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_011',name:'Setup and Configure Twitter Account for Exaguru',description:'Setup and Configure Twitter Account for Exaguru',assignee:'Abdul',priority:'High',endDate:'2026-02-25',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_012',name:'Create urgency Email',description:'create 2-3 templates',assignee:'Sachin',priority:'Urgent',endDate:'2026-02-25',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_013',name:'Create new linkedin Account Ashish2 name',description:'Create new linkedin Account Ashish2 name',assignee:'Ashish',priority:'Urgent',endDate:'2026-02-26',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_014',name:'Ashish Exaguru Account Activation',description:'Ashish Exaguru Account Activation',assignee:'Ashish',priority:'Urgent',endDate:'2026-02-27',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_015',name:'Collect top 10 review truspilot and Google reviews',description:'Create new Linkedin Account Ashish2 name',assignee:'Abdul',priority:'Urgent',endDate:'2026-02-27',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_016',name:'Exaguru LOGO',description:'replace old logo with the new logo from all social media',assignee:'Abdul',priority:'Urgent',endDate:'2026-02-27',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_017',name:'review all click funnel websites and shortlist 10-5 as per exaguru',description:'15 Best ClickFunnels Website Examples for 2025',assignee:'Abdul',priority:'High',endDate:'2026-02-27',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_018',name:'Technical Workshop with Ajay',description:'30-minute call with Ajay in order to gain technical knowledge',assignee:'Ashish',priority:'High',endDate:'2026-02-28',progress:'In Progress',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_019',name:'Competitor research',description:'Competitor research find about the group and FB ads',assignee:'Abdul',priority:'Medium',endDate:'2026-03-05',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_020',name:'Create an Plan for Implementing SEO and AEO',description:'SEO and AEO implementation on website and funnels',assignee:'Abdul',priority:'High',endDate:'2026-03-07',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_021',name:'Collect Review from personal Contacts',description:'video reviews',assignee:'Ashish',priority:'High',endDate:'2026-03-08',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_022',name:'Review collection session',description:'Plan a review collection session when the batch winds up',assignee:'Ashish',priority:'High',endDate:'2026-03-08',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_023',name:'Community Check',description:'what tools is best for community discord circle.io',assignee:'Abdul',priority:'High',endDate:'2026-03-09',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_024',name:'Check Post automation tool like assista ai',description:'Auto scheduling tool',assignee:'Sachin',priority:'Urgent',endDate:'2026-03-09',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_025',name:'create a 2 new course page oracle fusion cloud',description:'No description',assignee:'Abdul',priority:'High',endDate:'2026-03-17',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_026',name:'Telegram',description:'posting on Telegram',assignee:'Sachin',priority:'Urgent',endDate:'2026-03-18',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_027',name:'Social Media Auto Schedular',description:'Auto schedule to linkedin, instagram, FB, Telegram',assignee:'Sachin',priority:'Urgent',endDate:'2026-03-21',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_028',name:'Razorpay For International Payment',description:'Need to submit trainingbuzz Account statement',assignee:'Sachin',priority:'Urgent',endDate:'2026-03-22',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_029',name:'create SEO, AEO and GEO plan',description:'No description',assignee:'Abdul',priority:'Medium',endDate:'2026-03-23',progress:'Completed',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_030',name:'create a 2 new course page oracle fusion ERP and erp+ai',description:'No description',assignee:'Abdul',priority:'Urgent',endDate:'2026-03-24',progress:'Completed',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_031',name:'Create a Self-Paced Courses Subscription & Website Page',description:'Create a ₹1000/month recurring subscription model',assignee:'Abdul',priority:'High',endDate:'2026-04-02',progress:'Completed',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_032',name:'make pages geo pricing friendly',description:'No description',assignee:'Abdul',priority:'Medium',endDate:'2026-04-04',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'},
+      {id:'adhoc_033',name:'Work on Blog',description:'No description',assignee:'Abdul',priority:'Medium',endDate:'2026-04-05',progress:'Pending',createdAt:'2026-02-01T00:00:00Z'}
+    ];
+    // auto-set sysStatus
+    seed.forEach(function(t){t.sysStatus=adhocGetSysStatus(t)});
+    adhocTasks=seed;
+    await adhocSaveToFirestore();
+  }
+}
+function adhocStartListener(){
+  if(unsubscribeAdhoc)unsubscribeAdhoc();
+  unsubscribeAdhoc=onSnapshot(doc(db,'appdata','adhoc'),function(snap){
+    if(snap.exists()&&!adhocSaving){adhocTasks=snap.data().data||[];if(document.getElementById('panelAdhoc').classList.contains('active'))adhocRender()}
+  },function(err){});
+}
+
+// Auto-update system status based on end date
+function adhocGetSysStatus(task){
+  if(task.progress==='Completed')return'Completed';
+  var today=new Date();today.setHours(0,0,0,0);
+  var end=new Date(task.endDate);end.setHours(0,0,0,0);
+  if(end<today)return'Failed';
+  return'Active';
+}
+function adhocDaysRemaining(endDate){
+  var today=new Date();today.setHours(0,0,0,0);
+  var end=new Date(endDate);end.setHours(0,0,0,0);
+  return Math.round((end-today)/(1000*60*60*24));
+}
+
+// RENDER
+function adhocRender(){
+  adhocAutoUpdateStatuses();
+  adhocRenderStats();
+  adhocRenderAssigneeGrid();
+  adhocRenderTable();
+  adhocPopulateFilters();
+}
+function adhocAutoUpdateStatuses(){
+  var changed=false;
+  adhocTasks.forEach(function(t){
+    var sys=adhocGetSysStatus(t);
+    if(sys!==t.sysStatus){t.sysStatus=sys;changed=true}
+  });
+  if(changed)adhocSaveToFirestore();
+}
+function adhocRenderStats(){
+  var total=adhocTasks.length;
+  var completed=adhocTasks.filter(function(t){return t.progress==='Completed'}).length;
+  var pending=adhocTasks.filter(function(t){return t.progress==='Pending'}).length;
+  var inprog=adhocTasks.filter(function(t){return t.progress==='In Progress'||t.progress==='Confusion'}).length;
+  var failed=adhocTasks.filter(function(t){return t.sysStatus==='Failed'}).length;
+  var overdue=adhocTasks.filter(function(t){return t.sysStatus==='Failed'&&t.progress!=='Completed'}).length;
+  document.getElementById('adhocStats').innerHTML=
+    '<div class="adhoc-stat as-total"><div class="stat-label">Total</div><div class="stat-value">'+total+'</div></div>'+
+    '<div class="adhoc-stat as-completed"><div class="stat-label">Completed</div><div class="stat-value">'+completed+'</div></div>'+
+    '<div class="adhoc-stat as-pending"><div class="stat-label">Pending</div><div class="stat-value">'+pending+'</div></div>'+
+    '<div class="adhoc-stat as-progress"><div class="stat-label">In Progress</div><div class="stat-value">'+inprog+'</div></div>'+
+    '<div class="adhoc-stat as-overdue"><div class="stat-label">Overdue</div><div class="stat-value">'+overdue+'</div></div>'+
+    '<div class="adhoc-stat as-failed"><div class="stat-label">Failed</div><div class="stat-value">'+failed+'</div></div>';
+}
+function adhocRenderAssigneeGrid(){
+  var members=getTeamMembers();
+  var h='';
+  members.forEach(function(name){
+    var tasks=adhocTasks.filter(function(t){return t.assignee===name});
+    if(!tasks.length)return;
+    var meta=MEMBERS[name]||{color:'#999',bg:'rgba(150,150,150,.1)'};
+    var total=tasks.length;
+    var completed=tasks.filter(function(t){return t.progress==='Completed'}).length;
+    var failed=tasks.filter(function(t){return t.sysStatus==='Failed'}).length;
+    var active=tasks.filter(function(t){return t.sysStatus==='Active'&&t.progress!=='Completed'}).length;
+    var pct=total?Math.round(completed/total*100):0;
+    h+='<div class="ap-card">'+
+      '<div class="ap-card-name"><div class="avatar" style="background:'+meta.bg+';color:'+meta.color+';width:22px;height:22px;font-size:10px">'+name[0]+'</div>'+name+'</div>'+
+      '<div class="ap-card-stats">Total: '+total+'<br>Completed: '+completed+'<br>Failed: '+failed+'<br>Active: '+active+'</div>'+
+      '<div class="ap-card-bar"><div class="ap-card-fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="ap-card-pct">'+pct+'%</div></div>';
+  });
+  document.getElementById('adhocAssigneeGrid').innerHTML=h||'<div style="color:var(--text3);font-size:13px">No tasks yet</div>';
+}
+function adhocPopulateFilters(){
+  var members=getTeamMembers();
+  var sel=document.getElementById('adhocAssigneeFilter'),cv=sel.value;
+  sel.innerHTML='<option value="all">All Assignees</option>';
+  members.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});
+  sel.value=cv||'all';
+}
+function adhocGetFiltered(){
+  var af=document.getElementById('adhocAssigneeFilter').value;
+  var pf=document.getElementById('adhocPriorityFilter').value;
+  var sf=document.getElementById('adhocStatusFilter').value;
+  return adhocTasks.filter(function(t){
+    if(af!=='all'&&t.assignee!==af)return false;
+    if(pf!=='all'&&t.priority!==pf)return false;
+    if(sf!=='all'&&t.progress!==sf)return false;
+    return true;
+  });
+}
+function adhocRenderTable(){
+  var tasks=adhocGetFiltered();
+  var h='';
+  tasks.forEach(function(t){
+    var days=adhocDaysRemaining(t.endDate);
+    var daysCls=days<0?'days-overdue':days<=3?'days-soon':'days-ok';
+    var daysStr=days<0?Math.abs(days)+' days overdue':days===0?'Today':days+' days left';
+    var sys=t.sysStatus||adhocGetSysStatus(t);
+    var sysCls=sys==='Failed'?'ss-failed':sys==='Completed'?'ss-completed':sys==='Active'?'ss-active':'ss-pending';
+    var priCls='pri-'+t.priority.toLowerCase();
+    var isDone=t.progress==='Completed';
+    var meta=MEMBERS[t.assignee]||{color:'#999',bg:'rgba(150,150,150,.1)'};
+    h+='<tr class="'+(isDone?'row-completed':'')+'">'+
+      '<td><div class="adhoc-task-name'+(isDone?' strikethrough':'')+'">'+t.name+'</div>'+(t.description?'<div class="adhoc-desc">'+t.description+'</div>':'')+'</td>'+
+      '<td style="max-width:200px;font-size:12px;color:var(--text3)">'+(t.description?t.description.substring(0,50)+(t.description.length>50?'...':''):'—')+'</td>'+
+      '<td><span class="assignee-chip" style="background:'+meta.bg+';color:'+meta.color+'">'+t.assignee+'</span></td>'+
+      '<td><span class="pri-badge '+priCls+'">'+t.priority+'</span></td>'+
+      '<td style="font-family:var(--mono);font-size:11px">'+t.endDate.split('-').reverse().join('/')+'</td>'+
+      '<td><span class="days-badge '+daysCls+'">'+daysStr+'</span></td>'+
+      '<td><span class="sys-status '+sysCls+'">'+sys+'</span>'+(sys==='Failed'&&!isDone?'<div style="font-size:9px;color:var(--red);font-weight:700;margin-top:2px">TASK FAILED</div>':'')+'</td>'+
+      '<td><select class="prog-select" onchange="adhocChangeProgress(\''+t.id+'\',this.value)">'+
+        ['Pending','In Progress','Completed','Confusion'].map(function(s){return'<option value="'+s+'"'+(t.progress===s?' selected':'')+'>'+s+'</option>'}).join('')+
+      '</select></td>'+
+      '<td><div class="action-cell">'+
+        '<button class="action-btn" onclick="adhocEditTask(\''+t.id+'\')">✏️</button>'+
+        '<button class="action-btn delete" onclick="adhocDeleteTask(\''+t.id+'\')">✕</button>'+
+      '</div></td></tr>';
+  });
+  document.getElementById('adhocTableBody').innerHTML=h||'<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text3)">No adhoc tasks yet. Click "+ Add New Adhoc Task" to get started.</td></tr>';
+}
+
+// CRUD
+function adhocChangeProgress(id,val){
+  var t=adhocTasks.find(function(x){return x.id===id});
+  if(!t)return;
+  t.progress=val;t.sysStatus=adhocGetSysStatus(t);
+  adhocSaveToFirestore();adhocRender();showToast(t.name+' → '+val);
+}
+function adhocDeleteTask(id){
+  if(!confirm('Delete this task?'))return;
+  adhocTasks=adhocTasks.filter(function(t){return t.id!==id});
+  adhocSaveToFirestore();adhocRender();showToast('Task deleted','error');
+}
+function adhocEditTask(id){
+  var t=adhocTasks.find(function(x){return x.id===id});
+  if(!t)return;
+  adhocEditId=id;
+  document.getElementById('adhocModalTitle').textContent='Edit Adhoc Task';
+  document.getElementById('fAdhocName').value=t.name;
+  document.getElementById('fAdhocDesc').value=t.description||'';
+  document.getElementById('fAdhocAssignee').value=t.assignee;
+  document.getElementById('fAdhocPriority').value=t.priority;
+  document.getElementById('fAdhocEndDate').value=t.endDate;
+  document.getElementById('fAdhocProgress').value=t.progress;
+  document.getElementById('adhocModalOverlay').classList.add('open');
+}
+
+// MODAL
+function adhocOpenModal(){
+  adhocEditId=null;
+  document.getElementById('adhocModalTitle').textContent='Add Adhoc Task';
+  document.getElementById('fAdhocName').value='';
+  document.getElementById('fAdhocDesc').value='';
+  document.getElementById('fAdhocPriority').value='Medium';
+  document.getElementById('fAdhocEndDate').value='';
+  document.getElementById('fAdhocProgress').value='Pending';
+  // populate assignee dropdown
+  var sel=document.getElementById('fAdhocAssignee');sel.innerHTML='';
+  getTeamMembers().forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});
+  document.getElementById('adhocModalOverlay').classList.add('open');
+}
+function adhocCloseModal(){document.getElementById('adhocModalOverlay').classList.remove('open');adhocEditId=null}
+function adhocSaveTask(){
+  var name=document.getElementById('fAdhocName').value.trim();
+  var endDate=document.getElementById('fAdhocEndDate').value;
+  if(!name||!endDate){showToast('Task name and end date required','error');return}
+  var task={
+    name:name,
+    description:document.getElementById('fAdhocDesc').value.trim(),
+    assignee:document.getElementById('fAdhocAssignee').value,
+    priority:document.getElementById('fAdhocPriority').value,
+    endDate:endDate,
+    progress:document.getElementById('fAdhocProgress').value,
+    createdAt:new Date().toISOString()
+  };
+  task.sysStatus=adhocGetSysStatus(task);
+  if(adhocEditId){
+    var idx=adhocTasks.findIndex(function(t){return t.id===adhocEditId});
+    if(idx>=0){task.id=adhocEditId;task.createdAt=adhocTasks[idx].createdAt;adhocTasks[idx]=task;showToast('Task updated')}
+  }else{
+    task.id='adhoc_'+Date.now();adhocTasks.push(task);showToast('Task added');
+  }
+  adhocSaveToFirestore();adhocCloseModal();adhocRender();
+}
+
+// EXPORT
+function adhocExport(){
+  var csv=[['Task Name','Description','Assigned To','Priority','End Date','Days Remaining','System Status','Progress']];
+  adhocTasks.forEach(function(t){
+    var days=adhocDaysRemaining(t.endDate);
+    var daysStr=days<0?-days+' days overdue':days+' days left';
+    csv.push(['"'+(t.name||'').replace(/"/g,'""')+'"','"'+(t.description||'').replace(/"/g,'""')+'"',t.assignee,t.priority,t.endDate,daysStr,t.sysStatus,t.progress]);
+  });
+  var b=new Blob(['\ufeff'+csv.map(function(r){return r.join(',')}).join('\n')],{type:'text/csv'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ExaGuru_AdhocTasks_'+new Date().toISOString().split('T')[0]+'.csv';a.click();showToast('Exported!');
+}
+
+// ============================================================
 // EXPOSE TO HTML
 window.doLogin=doLogin;window.doLogout=doLogout;
 window.openModal=openModal;window.closeModal=closeModal;window.saveTask=saveTask;window.editTask=editTask;window.deleteTask=deleteTask;window.changeStatus=changeStatus;
@@ -1061,6 +1438,9 @@ window.tmClockIn=tmClockIn;window.tmClockOut=tmClockOut;window.tmToggleBreak=tmT
 window.setTmTab=setTmTab;window.tmRenderHistory=tmRenderHistory;window.tmRenderAdmin=tmRenderAdmin;
 window.tmOpenManual=tmOpenManual;window.tmCloseManual=tmCloseManual;window.tmSaveManual=tmSaveManual;
 window.tmExportMy=tmExportMy;window.tmExportAll=tmExportAll;
+window.adhocOpenModal=adhocOpenModal;window.adhocCloseModal=adhocCloseModal;window.adhocSaveTask=adhocSaveTask;
+window.adhocRender=adhocRender;window.adhocChangeProgress=adhocChangeProgress;
+window.adhocDeleteTask=adhocDeleteTask;window.adhocEditTask=adhocEditTask;window.adhocExport=adhocExport;
 
 // INIT
 (async function(){
