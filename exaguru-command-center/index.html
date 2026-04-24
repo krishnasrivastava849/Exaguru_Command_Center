@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ExaGuru — Command Center v10</title>
+<title>ExaGuru — Command Center v11</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -375,7 +375,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 <div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-card">
     <div class="login-logo">Exa<span>Guru</span></div>
-    <div class="login-sub">Command Center v10</div>
+    <div class="login-sub">Command Center v11</div>
     <input class="login-input" id="loginUser" placeholder="Username" autofocus onkeydown="if(event.key==='Enter')doLogin()">
     <input class="login-input" id="loginPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
@@ -718,14 +718,34 @@ function renderUserList(){
 async function createUser(){
   var u=document.getElementById('fNewUser').value.trim().toLowerCase(),p=document.getElementById('fNewPass').value,r=document.getElementById('fNewRole').value;
   if(!u||!p){showToast('Required','error');return}if(users[u]){showToast('Exists','error');return}
-  users[u]={hash:await hashPass(p),role:r,displayName:u.charAt(0).toUpperCase()+u.slice(1)};
+  var displayName=u.charAt(0).toUpperCase()+u.slice(1);
+  users[u]={hash:await hashPass(p),role:r,displayName:displayName};
+  // Auto-add to MEMBERS so they appear in all dropdowns, team views, assignee lists
+  if(!MEMBERS[displayName]){
+    var c=nextColor();
+    MEMBERS[displayName]={color:c,bg:colorToBg(c)};
+    await saveData(); // save MEMBERS to Firestore
+  }
   await saveUsersToFirestore();
   document.getElementById('fNewUser').value='';document.getElementById('fNewPass').value='';
-  renderUserList();showToast('User '+u+' created');
-  // Refresh time management team view to reflect new user
-  tmRenderTeam();
+  renderUserList();renderAll();tmRenderTeam();
+  if(document.getElementById('panelDaily').classList.contains('active'))dtRender();
+  showToast('User '+displayName+' created');
 }
-window._deleteUser=async function(u){if(!confirm('Delete user '+u+'?'))return;delete users[u];await saveUsersToFirestore();renderUserList();showToast(u+' deleted');tmRenderTeam()}
+window._deleteUser=async function(u){
+  if(!confirm('Delete user '+u+'?'))return;
+  var displayName=users[u]?users[u].displayName:null;
+  delete users[u];
+  // Also remove from MEMBERS if they were auto-added
+  if(displayName&&MEMBERS[displayName]){
+    delete MEMBERS[displayName];
+    await saveData();
+  }
+  await saveUsersToFirestore();
+  renderUserList();renderAll();tmRenderTeam();
+  if(document.getElementById('panelDaily').classList.contains('active'))dtRender();
+  showToast(u+' deleted');
+}
 window._resetPass=async function(u){var np=prompt('New password for '+u+':');if(!np)return;users[u].hash=await hashPass(np);await saveUsersToFirestore();showToast('Password reset for '+u)}
 window._changeMyPass=async function(){var np=prompt('Enter your new password:');if(!np)return;users[currentUser.username].hash=await hashPass(np);await saveUsersToFirestore();showToast('Password updated')}
 
