@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ExaGuru — Command Center v8</title>
+<title>ExaGuru — Command Center v10</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -332,6 +332,35 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 .adhoc-footer-note{text-align:center;font-size:11px;color:var(--text3);padding:12px;border-top:1px solid var(--border);font-style:italic}
 @media(max-width:900px){.adhoc-stats{grid-template-columns:repeat(3,1fr)}.adhoc-table th:nth-child(n+4),.adhoc-table td:nth-child(n+4){display:none}}
 @media(max-width:600px){.adhoc-stats{grid-template-columns:repeat(2,1fr)}.adhoc-main{padding:12px}}
+
+/* ============================================================
+   DAILY TASKS STYLES
+   ============================================================ */
+.dt-main{padding:20px;max-width:1200px;margin:0 auto}
+.dt-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.dt-title{font-size:18px;font-weight:700;color:var(--text)}
+.dt-date{font-family:var(--mono);font-size:12px;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:4px;border:1px solid var(--border)}
+.dt-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.dt-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;border-left:3px solid var(--border)}
+.dt-stat.dst-total{border-left-color:var(--blue)}.dt-stat.dst-done{border-left-color:var(--green)}.dt-stat.dst-pending{border-left-color:var(--yellow)}.dt-stat.dst-progress{border-left-color:var(--purple)}
+.dt-stat .stat-label{font-size:11px;color:var(--text3);margin-bottom:4px;font-weight:500}
+.dt-stat .stat-value{font-size:26px;font-weight:700;font-family:var(--mono)}
+.dst-total .stat-value{color:var(--blue)}.dst-done .stat-value{color:var(--green)}.dst-pending .stat-value{color:var(--yellow)}.dst-progress .stat-value{color:var(--purple)}
+.dt-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.dt-section-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.dt-section-title{font-weight:600;font-size:13px}
+.dt-section-count{font-family:var(--mono);font-size:11px;background:var(--border);padding:1px 7px;border-radius:8px;color:var(--text3)}
+.dt-add-btn{margin-left:auto;background:none;border:1px dashed var(--border);color:var(--text3);padding:3px 10px;border-radius:5px;cursor:pointer;font-size:12px;font-family:var(--font);transition:.12s}
+.dt-add-btn:hover{border-color:var(--brand);color:var(--brand)}
+.dt-task-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);transition:background .08s}
+.dt-task-row:hover{background:var(--surface2)}.dt-task-row:last-child{border-bottom:none}
+.dt-checkbox{width:16px;height:16px;cursor:pointer;accent-color:var(--brand);flex-shrink:0}
+.dt-task-name{flex:1;font-size:13px;color:var(--text)}.dt-task-name.done{text-decoration:line-through;color:var(--text3)}
+.dt-task-assignee{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;flex-shrink:0}
+.dt-task-note{font-size:11px;color:var(--text3);margin-top:2px}
+.dt-task-actions{display:flex;gap:4px;flex-shrink:0}
+.dt-empty{text-align:center;padding:24px;color:var(--text3);font-size:13px}
+@media(max-width:600px){.dt-stats{grid-template-columns:repeat(2,1fr)}.dt-main{padding:12px}}
 </style>
 </head>
 <body>
@@ -346,7 +375,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 <div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-card">
     <div class="login-logo">Exa<span>Guru</span></div>
-    <div class="login-sub">Command Center v8</div>
+    <div class="login-sub">Command Center v10</div>
     <input class="login-input" id="loginUser" placeholder="Username" autofocus onkeydown="if(event.key==='Enter')doLogin()">
     <input class="login-input" id="loginPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
@@ -379,6 +408,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
   <div class="app-tabs">
     <button class="app-tab active" id="appTabTasks" onclick="switchAppTab('tasks')">📋 Task Management</button>
     <button class="app-tab" id="appTabTime" onclick="switchAppTab('time')">⏱ Time Management</button>
+    <button class="app-tab" id="appTabDaily" onclick="switchAppTab('daily')">📅 Daily Tasks</button>
     <button class="app-tab" id="appTabAdhoc" onclick="switchAppTab('adhoc')">🎯 Adhoc Tasks</button>
   </div>
 
@@ -392,10 +422,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
         <div class="nav-item" onclick="filterSection('sales',this)"><div class="nav-dot" style="background:var(--blue)"></div> Sales Assets</div>
         <div class="nav-item" onclick="filterSection('masterclass',this)"><div class="nav-dot" style="background:var(--purple)"></div> Masterclass</div>
         <div class="nav-item" onclick="filterSection('one-on-one',this)"><div class="nav-dot" style="background:var(--red)"></div> One on One</div>
-        <div class="nav-item" onclick="filterSection('daily',this)"><div class="nav-dot" style="background:var(--green)"></div> Daily Activity</div>
         <div class="nav-item" onclick="filterSection('batch',this)"><div class="nav-dot" style="background:var(--red)"></div> Batch Mgmt</div>
         <div class="sidebar-divider"></div>
-        <div class="sidebar-label" style="display:flex;align-items:center;justify-content:space-between">Team <span class="admin-only" style="display:none;gap:3px"><button class="cs-btn" style="padding:2px 6px;font-size:10px" onclick="openTeamModal()">+</button><button class="cs-btn danger" style="padding:2px 6px;font-size:10px" onclick="openRemoveTeamModal()">−</button></span></div>
+        <div class="sidebar-label" style="display:flex;align-items:center;justify-content:space-between">Team <span style="display:flex;gap:3px"><button class="cs-btn" style="padding:2px 6px;font-size:10px" onclick="openTeamModal()">+</button><button class="cs-btn danger" style="padding:2px 6px;font-size:10px" onclick="openRemoveTeamModal()">−</button></span></div>
         <div class="member-list" id="memberList"></div>
       </div>
       <div class="main">
@@ -505,6 +534,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     </div>
   </div>
 
+  <!-- ═══════════════════ DAILY TASKS PANEL ═══════════════════ -->
+  <div class="app-tab-panel" id="panelDaily">
+    <div class="dt-main">
+      <div class="dt-header-row">
+        <div class="dt-title">📅 Daily Tasks</div>
+        <div class="dt-date" id="dtDateDisplay"></div>
+        <button class="adhoc-add-btn" onclick="dtOpenModal()">+ Add Daily Task</button>
+      </div>
+      <div class="dt-stats" id="dtStats"></div>
+      <div id="dtSections"></div>
+    </div>
+  </div>
+
   <!-- ═══════════════════ ADHOC TASKS PANEL ═══════════════════ -->
   <div class="app-tab-panel" id="panelAdhoc">
     <div class="adhoc-main">
@@ -557,7 +599,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 </div><!-- end app-wrap -->
 
 <!-- TASK MODALS -->
-<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-title" id="modalTitle">Add New Task</div><div class="form-row"><label class="form-label">Task *</label><textarea class="form-textarea" id="fTaskName" placeholder="Describe..."></textarea></div><div class="form-row-grid3"><div class="form-row"><label class="form-label">Due</label><input type="date" class="form-input" id="fDueDate"></div><div class="form-row"><label class="form-label">Status</label><select class="form-select" id="fStatus"><option value="Pending">Pending</option><option value="WIP">WIP</option><option value="Done">Done</option><option value="HOLD">HOLD</option></select></div><div class="form-row"><label class="form-label">Priority</label><select class="form-select" id="fPriority"><option value="">None</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div></div><div class="form-row-grid"><div class="form-row"><label class="form-label">Assignee</label><input class="form-input" id="fAssignee" placeholder="e.g. Sachin"></div><div class="form-row"><label class="form-label">Reviewer</label><input class="form-input" id="fReviewer" placeholder="e.g. Sanchit"></div></div><div class="form-row-grid"><div class="form-row"><label class="form-label">Section</label><select class="form-select" id="fSection"><option value="pre-launch">Pre Launch</option><option value="sales">Sales Assets</option><option value="masterclass">Masterclass-1</option><option value="one-on-one">One on One</option><option value="daily">Daily Activity</option><option value="batch">Batch Mgmt</option></select></div><div class="form-row"><label class="form-label">Blocked By</label><input class="form-input" id="fBlockedBy" placeholder="e.g. PL-04"></div></div><div class="form-row"><label class="form-label">Notes</label><textarea class="form-textarea" id="fNotes" placeholder="Notes..." style="min-height:40px"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveTask()">Save</button></div></div></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal"><div class="modal-title" id="modalTitle">Add New Task</div><div class="form-row"><label class="form-label">Task *</label><textarea class="form-textarea" id="fTaskName" placeholder="Describe..."></textarea></div><div class="form-row-grid3"><div class="form-row"><label class="form-label">Due</label><input type="date" class="form-input" id="fDueDate"></div><div class="form-row"><label class="form-label">Status</label><select class="form-select" id="fStatus"><option value="Pending">Pending</option><option value="WIP">WIP</option><option value="Done">Done</option><option value="HOLD">HOLD</option></select></div><div class="form-row"><label class="form-label">Priority</label><select class="form-select" id="fPriority"><option value="">None</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div></div><div class="form-row-grid"><div class="form-row"><label class="form-label">Assignee</label><input class="form-input" id="fAssignee" placeholder="e.g. Sachin"></div><div class="form-row"><label class="form-label">Reviewer</label><input class="form-input" id="fReviewer" placeholder="e.g. Sanchit"></div></div><div class="form-row-grid"><div class="form-row"><label class="form-label">Section</label><select class="form-select" id="fSection"><option value="pre-launch">Pre Launch</option><option value="sales">Sales Assets</option><option value="masterclass">Masterclass-1</option><option value="one-on-one">One on One</option><option value="batch">Batch Mgmt</option></select></div><div class="form-row"><label class="form-label">Blocked By</label><input class="form-input" id="fBlockedBy" placeholder="e.g. PL-04"></div></div><div class="form-row"><label class="form-label">Notes</label><textarea class="form-textarea" id="fNotes" placeholder="Notes..." style="min-height:40px"></textarea></div><div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="saveTask()">Save</button></div></div></div>
 <div class="modal-overlay" id="courseModalOverlay"><div class="modal" style="width:380px"><div class="modal-title">Add Course</div><div class="form-row"><label class="form-label">Name *</label><input class="form-input" id="fCourseName" placeholder="e.g. Oracle Exadata"></div><p style="font-size:12px;color:var(--text3);margin-top:8px">Pre-filled template created automatically.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeCourseModal()">Cancel</button><button class="btn-save" onclick="addCourse()">Create</button></div></div></div>
 <div class="modal-overlay" id="teamModalOverlay"><div class="modal" style="width:360px"><div class="modal-title">Add Team Member</div><div class="form-row"><label class="form-label">Name *</label><input class="form-input" id="fMemberName" placeholder="e.g. Rahul"></div><div class="form-row"><label class="form-label">Color</label><input type="color" id="fMemberColor" value="#2563eb" style="width:50px;height:32px;border:1px solid var(--border);border-radius:4px;cursor:pointer"></div><div class="modal-actions"><button class="btn-cancel" onclick="closeTeamModal()">Cancel</button><button class="btn-save" onclick="addMember()">Add</button></div></div></div>
 <div class="modal-overlay" id="removeTeamModalOverlay"><div class="modal" style="width:360px"><div class="modal-title">Remove Team Member</div><div class="form-row"><label class="form-label">Select</label><select class="form-select" id="fRemoveMember"></select></div><p style="font-size:12px;color:var(--text3);margin-top:4px">Name stays on existing tasks.</p><div class="modal-actions"><button class="btn-cancel" onclick="closeRemoveTeamModal()">Cancel</button><button class="btn-save" style="background:var(--red)" onclick="removeMember()">Remove</button></div></div></div>
@@ -577,6 +619,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
     <div class="form-row"><label class="form-label">Break (minutes)</label><input type="number" class="form-input" id="tmManualBreak" value="0" min="0" max="120"></div>
     <div class="form-row"><label class="form-label">Note</label><input class="form-input" id="tmManualNote" placeholder="e.g. Work from home"></div>
     <div class="modal-actions"><button class="btn-cancel" onclick="tmCloseManual()">Cancel</button><button class="btn-save" onclick="tmSaveManual()">Save</button></div>
+  </div>
+</div>
+
+<!-- DAILY TASK MODAL -->
+<div class="modal-overlay" id="dtModalOverlay">
+  <div class="modal" style="width:420px">
+    <div class="modal-title" id="dtModalTitle">Add Daily Task</div>
+    <div class="form-row"><label class="form-label">Task Name *</label><input class="form-input" id="fDtName" placeholder="e.g. Review LinkedIn messages"></div>
+    <div class="form-row"><label class="form-label">Notes</label><input class="form-input" id="fDtNote" placeholder="Optional notes..."></div>
+    <div class="form-row"><label class="form-label">Assigned To</label><select class="form-select" id="fDtAssignee"></select></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="dtCloseModal()">Cancel</button><button class="btn-save" onclick="dtSaveTask()">Save</button></div>
   </div>
 </div>
 
@@ -679,19 +732,16 @@ window._changeMyPass=async function(){var np=prompt('Enter your new password:');
 // ============================================================
 // MEMBERS & SECTION CONFIG
 // ============================================================
-var DEFAULT_MEMBERS={'Sanchit':{color:'#b45309',bg:'rgba(180,83,9,.12)'},'Sachin':{color:'#2563eb',bg:'rgba(37,99,235,.1)'},'Ashish':{color:'#16a34a',bg:'rgba(22,163,74,.1)'},'Neha':{color:'#dc2626',bg:'rgba(220,38,38,.1)'},'Abdul':{color:'#7c3aed',bg:'rgba(124,58,237,.1)'},'Abhinandan':{color:'#0891b2',bg:'rgba(8,145,178,.1)'}};
+var DEFAULT_MEMBERS={'Sanchit':{color:'#b45309',bg:'rgba(180,83,9,.12)'},'Sachin':{color:'#2563eb',bg:'rgba(37,99,235,.1)'},'Ashish':{color:'#16a34a',bg:'rgba(22,163,74,.1)'},'Abdul':{color:'#7c3aed',bg:'rgba(124,58,237,.1)'},'Abhinandan':{color:'#0891b2',bg:'rgba(8,145,178,.1)'},'Ankit':{color:'#d946ef',bg:'rgba(217,70,239,.1)'},'Shubham':{color:'#ea580c',bg:'rgba(234,88,12,.1)'}};
 var MEMBERS=JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
 var MEMBER_COLORS=['#b45309','#2563eb','#16a34a','#dc2626','#7c3aed','#0891b2','#d946ef','#ea580c','#0d9488','#4f46e5','#c026d3','#65a30d'];
 function colorToBg(c){var m=c.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);if(!m)return'rgba(150,150,150,.1)';return'rgba('+parseInt(m[1],16)+','+parseInt(m[2],16)+','+parseInt(m[3],16)+',.12)'}
 function nextColor(){var used=Object.values(MEMBERS).map(function(m){return m.color});for(var i=0;i<MEMBER_COLORS.length;i++){if(used.indexOf(MEMBER_COLORS[i])===-1)return MEMBER_COLORS[i]}return MEMBER_COLORS[Object.keys(MEMBERS).length%MEMBER_COLORS.length]}
-var SECTION_META={'pre-launch':{label:'Pre Launch',color:'var(--brand)',cls:'section-prelaunch'},'sales':{label:'Sales Assets',color:'var(--blue)',cls:'section-sales'},'masterclass':{label:'Masterclass-1',color:'var(--purple)',cls:'section-masterclass'},'one-on-one':{label:'One on One Call',color:'var(--red)',cls:''},'daily':{label:'Daily Activity',color:'var(--green)',cls:'section-daily'},'batch':{label:'Batch Management',color:'var(--red)',cls:'section-batch'}};
+var SECTION_META={'pre-launch':{label:'Pre Launch',color:'var(--brand)',cls:'section-prelaunch'},'sales':{label:'Sales Assets',color:'var(--blue)',cls:'section-sales'},'masterclass':{label:'Masterclass-1',color:'var(--purple)',cls:'section-masterclass'},'one-on-one':{label:'One on One Call',color:'var(--red)',cls:''},'batch':{label:'Batch Management',color:'var(--red)',cls:'section-batch'}};
 
-// Helper: get all active team members (MEMBERS + any users added)
+// Helper: get all active team members from MEMBERS only (single source of truth)
 function getTeamMembers(){
-  var names=new Set(Object.keys(MEMBERS));
-  // also include users who have a displayName
-  Object.values(users).forEach(function(u){if(u.displayName)names.add(u.displayName)});
-  return Array.from(names);
+  return Object.keys(MEMBERS);
 }
 
 // ============================================================
@@ -699,11 +749,11 @@ function getTeamMembers(){
 // ============================================================
 function generateTemplate(C){
   function t(id,n,s,sub,a,r){return{id:id,name:n,due:'',assignee:a||'',reviewer:r||'',status:'Pending',section:s,sub:sub||false,priority:'',notes:'',blockedBy:''}}
-  return[t('PL-01','Finalise Trainer for '+C,'pre-launch',0,'Ashish','Sanchit'),t('PL-02','Finalise Course content','pre-launch',0,'Ashish','Sanchit'),t('PL-03','Attach syllabus on Landing Page','pre-launch',0,'Abdul','Sanchit'),t('PL-04','Create ClickFunnel for '+C,'pre-launch',0,'Sachin','Sanchit'),t('PL-05','Align blog/newsletter: '+C,'pre-launch',0,'Abdul','Ashish'),t('PL-06','Create Ebook funnel','pre-launch',0,'','Sachin'),t('PL-07','Design PDF Learning Paths','pre-launch',0,'Ashish','Ashish'),t('PL-08','Manage Social Calendar','pre-launch',0,'Abdul','Sanchit'),t('PL-09','Masterclass topics + PPT','pre-launch',0,'Ashish','Ashish'),t('PL-10','Prepare social media posts','pre-launch',0,'Abdul','Sanchit'),t('PL-11','Email templates for review','pre-launch',0,'Sachin','Sanchit'),t('PL-12','Upload video YouTube + SEO','pre-launch',0,'Sachin','Ashish'),t('PL-12a','Email: Course Launch','pre-launch',1,'Sachin','Sanchit'),t('PL-12b','Email: Learning Path PDF','pre-launch',1,'Sachin','Sanchit'),t('PL-12c','Email: MC Launch','pre-launch',1,'Sachin','Sachin'),t('PL-12d','Email: Reminder 1 day','pre-launch',1,'Sachin','Sanchit'),t('PL-12e','Email: Reminder 4hr','pre-launch',1,'Sachin','Sanchit'),t('PL-12f','Email: Reminder 1hr','pre-launch',1,'Sachin','Sanchit'),t('PL-12g','Email: Reminder 15min','pre-launch',1,'Sachin','Sanchit'),t('PL-12h','Email: MC Started — Join','pre-launch',1,'Sachin','Sanchit'),t('PL-13','WhatsApp mass MC Reminder','pre-launch',0,'Sachin','Sanchit'),t('PL-13a','WA: MC Launch','pre-launch',1,'Sachin','Sanchit'),t('PL-13b','WA: Reminder 1 day + PDF','pre-launch',1,'Sachin','Sanchit'),t('PL-13c','WA: Reminder 30min','pre-launch',1,'Sachin','Sanchit'),t('PL-13d','WA: Reminder 15min','pre-launch',1,'Sachin','Sanchit'),t('PL-14','SM Calendar ready every Fri','pre-launch',0,'Sachin','Sanchit'),t('PL-15','LI: Send PDF to 30 daily','pre-launch',0,'Sachin','Sanchit'),t('PL-15b','LI: MC msg + PDF','pre-launch',1,'Sachin','Sanchit'),t('PL-15c','LI: Strategy Call + Link','pre-launch',1,'Sachin','Sanchit'),t('PL-16a','Tech Video: walkthrough','pre-launch',0,'Sachin','Sanchit'),t('PL-16b','Marketing video (Neha)','pre-launch',0,'Sachin','Sanchit'),t('PL-16c','Post on all SM','pre-launch',0,'Sachin','Sanchit'),t('PL-17','Join groups FB/IG/LI','pre-launch',0,'Abdul, Ashish, Sachin','Sanchit'),t('PL-18','Landing Page + automations','pre-launch',0,'Abdul'),t('SA-01','Syllabus ExaGuru format','sales'),t('SA-02','Career infographic','sales'),t('SA-03','Sales video + salary data','sales'),t('MC-01','Webinar Landing Page','masterclass'),t('MC-02','Confirm date/time trainer','masterclass'),t('MC-03','Finalize PPT/syllabus','masterclass'),t('MC-04','Create webinar event LI/FB','masterclass'),t('MC-05','Calendly link','masterclass'),t('MC-06','Google Form feedback','masterclass'),t('MC-07a','Auto: Calendly reminder','masterclass',1),t('MC-07b','Auto: WA reminder','masterclass',1),t('MC-07c','Auto: Email reminder','masterclass',1),t('MC-07d','Auto: CF reminder','masterclass',1),t('MC-08','Email: Recording link','masterclass'),t('MC-09','Urgency Email: Book 1-on-1','masterclass'),t('MC-10','Upload Recording YouTube','masterclass'),t('OO-01','Landing Page','one-on-one'),t('OO-02','Confirm date/time','one-on-one'),t('OO-03','Event LI/FB','one-on-one'),t('OO-04','Group call link','one-on-one'),t('OO-05','Google Form','one-on-one'),t('OO-06','Autoresponders','one-on-one',0,'Abdul'),t('OO-06a','Auto: Calendly','one-on-one',1),t('OO-06b','Auto: WA','one-on-one',1),t('OO-06c','Auto: Email','one-on-one',1),t('OO-06d','Auto: CF','one-on-one',1),t('OO-07','Email: Recording','one-on-one'),t('OO-08','Urgency Email','one-on-one'),t('DA-01','Launch mass mail/WA/SM','daily',0,'Sachin'),t('DA-02','Run Meta Ads','daily',0,'Neha'),t('DA-03','Short-form videos','daily',0,'Neha'),t('DA-04','Tech videos','daily',0,'Neha'),t('DA-05','LI msgs 25-30/day','daily',0,'Sachin, Ashish, Neha'),t('DA-06','Post groups 2x/day','daily',0,'Ashish, Sachin, Neha'),t('DA-07','Run MC funnel','daily',0,'Sachin'),t('DA-08','Lead sheet daily','daily',0,'Neha'),t('DA-09','Intl payment link','daily',0,'Sachin'),t('DA-10','Job posts WA','daily',0,'Sachin'),t('DA-11','LI outreach format','daily',0,'Neha'),t('DA-12','Invite follow LI page','daily',0,'Neha, Sachin, Ashish'),t('DA-13','Drive/account mgmt','daily',0,'Neha, Sachin'),t('DA-14','Fetch LI contacts','daily',0,'Sachin'),t('BM-01','Create WA group','batch',0,'Ashish'),t('BM-02','Welcome mail + payment','batch',0,'Ashish'),t('BM-03','Onboarding Email','batch'),t('BM-04','LMS access','batch',0,'Sachin'),t('BM-05','Payment reminders','batch',0,'Neha'),t('BM-06','Upload recordings LMS','batch',0,'Sachin','Ashish'),t('BM-07','Invoice + CA check','batch',0,'Ashish')];
+  return[t('PL-01','Finalise Trainer for '+C,'pre-launch',0,'Ashish','Sanchit'),t('PL-02','Finalise Course content','pre-launch',0,'Ashish','Sanchit'),t('PL-03','Attach syllabus on Landing Page','pre-launch',0,'Abdul','Sanchit'),t('PL-04','Create ClickFunnel for '+C,'pre-launch',0,'Sachin','Sanchit'),t('PL-05','Align blog/newsletter: '+C,'pre-launch',0,'Abdul','Ashish'),t('PL-06','Create Ebook funnel','pre-launch',0,'','Sachin'),t('PL-07','Design PDF Learning Paths','pre-launch',0,'Ashish','Ashish'),t('PL-08','Manage Social Calendar','pre-launch',0,'Abdul','Sanchit'),t('PL-09','Masterclass topics + PPT','pre-launch',0,'Ashish','Ashish'),t('PL-10','Prepare social media posts','pre-launch',0,'Abdul','Sanchit'),t('PL-11','Email templates for review','pre-launch',0,'Sachin','Sanchit'),t('PL-12','Upload video YouTube + SEO','pre-launch',0,'Sachin','Ashish'),t('PL-12a','Email: Course Launch','pre-launch',1,'Sachin','Sanchit'),t('PL-12b','Email: Learning Path PDF','pre-launch',1,'Sachin','Sanchit'),t('PL-12c','Email: MC Launch','pre-launch',1,'Sachin','Sachin'),t('PL-12d','Email: Reminder 1 day','pre-launch',1,'Sachin','Sanchit'),t('PL-12e','Email: Reminder 4hr','pre-launch',1,'Sachin','Sanchit'),t('PL-12f','Email: Reminder 1hr','pre-launch',1,'Sachin','Sanchit'),t('PL-12g','Email: Reminder 15min','pre-launch',1,'Sachin','Sanchit'),t('PL-12h','Email: MC Started — Join','pre-launch',1,'Sachin','Sanchit'),t('PL-13','WhatsApp mass MC Reminder','pre-launch',0,'Sachin','Sanchit'),t('PL-13a','WA: MC Launch','pre-launch',1,'Sachin','Sanchit'),t('PL-13b','WA: Reminder 1 day + PDF','pre-launch',1,'Sachin','Sanchit'),t('PL-13c','WA: Reminder 30min','pre-launch',1,'Sachin','Sanchit'),t('PL-13d','WA: Reminder 15min','pre-launch',1,'Sachin','Sanchit'),t('PL-14','SM Calendar ready every Fri','pre-launch',0,'Sachin','Sanchit'),t('PL-15','LI: Send PDF to 30 daily','pre-launch',0,'Sachin','Sanchit'),t('PL-15b','LI: MC msg + PDF','pre-launch',1,'Sachin','Sanchit'),t('PL-15c','LI: Strategy Call + Link','pre-launch',1,'Sachin','Sanchit'),t('PL-16a','Tech Video: walkthrough','pre-launch',0,'Sachin','Sanchit'),t('PL-16b','Marketing video (Neha)','pre-launch',0,'Sachin','Sanchit'),t('PL-16c','Post on all SM','pre-launch',0,'Sachin','Sanchit'),t('PL-17','Join groups FB/IG/LI','pre-launch',0,'Abdul, Ashish, Sachin','Sanchit'),t('PL-18','Landing Page + automations','pre-launch',0,'Abdul'),t('SA-01','Syllabus ExaGuru format','sales'),t('SA-02','Career infographic','sales'),t('SA-03','Sales video + salary data','sales'),t('MC-01','Webinar Landing Page','masterclass'),t('MC-02','Confirm date/time trainer','masterclass'),t('MC-03','Finalize PPT/syllabus','masterclass'),t('MC-04','Create webinar event LI/FB','masterclass'),t('MC-05','Calendly link','masterclass'),t('MC-06','Google Form feedback','masterclass'),t('MC-07a','Auto: Calendly reminder','masterclass',1),t('MC-07b','Auto: WA reminder','masterclass',1),t('MC-07c','Auto: Email reminder','masterclass',1),t('MC-07d','Auto: CF reminder','masterclass',1),t('MC-08','Email: Recording link','masterclass'),t('MC-09','Urgency Email: Book 1-on-1','masterclass'),t('MC-10','Upload Recording YouTube','masterclass'),t('OO-01','Landing Page','one-on-one'),t('OO-02','Confirm date/time','one-on-one'),t('OO-03','Event LI/FB','one-on-one'),t('OO-04','Group call link','one-on-one'),t('OO-05','Google Form','one-on-one'),t('OO-06','Autoresponders','one-on-one',0,'Abdul'),t('OO-06a','Auto: Calendly','one-on-one',1),t('OO-06b','Auto: WA','one-on-one',1),t('OO-06c','Auto: Email','one-on-one',1),t('OO-06d','Auto: CF','one-on-one',1),t('OO-07','Email: Recording','one-on-one'),t('OO-08','Urgency Email','one-on-one'),t('BM-01','Create WA group','batch',0,'Ashish'),t('BM-02','Welcome mail + payment','batch',0,'Ashish'),t('BM-03','Onboarding Email','batch'),t('BM-04','LMS access','batch',0,'Sachin'),t('BM-05','Payment reminders','batch',0,'Neha'),t('BM-06','Upload recordings LMS','batch',0,'Sachin','Ashish'),t('BM-07','Invoice + CA check','batch',0,'Ashish')];
 }
 function fusionHCMTasks(){
   var tpl=generateTemplate('Oracle Fusion HCM');
-  var o={'PL-01':{due:'2026-03-10',status:'Done'},'PL-02':{due:'2026-03-17',status:'Done'},'PL-03':{due:'2026-03-17',status:'Done'},'PL-04':{due:'2026-03-18',status:'WIP'},'PL-05':{due:'2026-03-23',status:'WIP'},'PL-06':{due:'2026-03-15'},'PL-07':{due:'2026-03-16'},'PL-08':{due:'2026-03-17',status:'WIP'},'PL-09':{due:'2026-03-18',status:'WIP'},'PL-10':{due:'2026-03-19',status:'WIP'},'PL-11':{due:'2026-03-19'},'PL-12':{due:'2026-03-21'},'PL-12a':{due:'2026-03-22'},'PL-12b':{due:'2026-03-23'},'PL-12c':{due:'2026-03-24'},'PL-12d':{due:'2026-03-25'},'PL-12e':{due:'2026-03-26'},'PL-12f':{due:'2026-03-27'},'PL-12g':{due:'2026-03-28'},'PL-12h':{due:'2026-03-29'},'PL-13':{due:'2026-03-30'},'PL-13a':{due:'2026-03-31'},'PL-13b':{due:'2026-03-31'},'PL-13c':{due:'2026-03-31'},'PL-13d':{due:'2026-03-31'},'PL-14':{due:'2026-03-31'},'PL-15':{due:'2026-03-31'},'PL-15b':{due:'2026-03-31'},'PL-15c':{due:'2026-03-31'},'PL-16a':{due:'2026-03-31'},'PL-16b':{due:'2026-03-31'},'PL-16c':{due:'2026-03-31'},'PL-17':{due:'2026-03-31'},'PL-18':{due:'2026-03-31'},'SA-01':{due:'2026-03-31'},'SA-02':{due:'2026-03-31'},'SA-03':{due:'2026-03-31'},'DA-01':{due:'2026-03-31'},'DA-02':{due:'2026-03-31'},'DA-03':{due:'2026-03-31'},'DA-04':{due:'2026-03-31'},'DA-05':{due:'2026-03-31'},'DA-06':{due:'2026-03-31'},'DA-07':{due:'2026-03-31'},'DA-08':{due:'2026-03-31'},'DA-09':{due:'2026-03-31'},'DA-10':{due:'2026-03-31'},'DA-11':{due:'2026-03-31'},'DA-12':{due:'2026-03-31'},'DA-13':{due:'2026-03-31'},'DA-14':{due:'2026-03-31'},'BM-01':{due:'2025-12-31',status:'Done'},'BM-02':{due:'2026-01-01',status:'Done'},'BM-04':{due:'2026-01-04',status:'Done'},'BM-05':{due:'2026-01-05'},'BM-06':{status:'WIP'},'OO-06':{status:'HOLD'}};
+  var o={'PL-01':{due:'2026-03-10',status:'Done'},'PL-02':{due:'2026-03-17',status:'Done'},'PL-03':{due:'2026-03-17',status:'Done'},'PL-04':{due:'2026-03-18',status:'WIP'},'PL-05':{due:'2026-03-23',status:'WIP'},'PL-06':{due:'2026-03-15'},'PL-07':{due:'2026-03-16'},'PL-08':{due:'2026-03-17',status:'WIP'},'PL-09':{due:'2026-03-18',status:'WIP'},'PL-10':{due:'2026-03-19',status:'WIP'},'PL-11':{due:'2026-03-19'},'PL-12':{due:'2026-03-21'},'PL-12a':{due:'2026-03-22'},'PL-12b':{due:'2026-03-23'},'PL-12c':{due:'2026-03-24'},'PL-12d':{due:'2026-03-25'},'PL-12e':{due:'2026-03-26'},'PL-12f':{due:'2026-03-27'},'PL-12g':{due:'2026-03-28'},'PL-12h':{due:'2026-03-29'},'PL-13':{due:'2026-03-30'},'PL-13a':{due:'2026-03-31'},'PL-13b':{due:'2026-03-31'},'PL-13c':{due:'2026-03-31'},'PL-13d':{due:'2026-03-31'},'PL-14':{due:'2026-03-31'},'PL-15':{due:'2026-03-31'},'PL-15b':{due:'2026-03-31'},'PL-15c':{due:'2026-03-31'},'PL-16a':{due:'2026-03-31'},'PL-16b':{due:'2026-03-31'},'PL-16c':{due:'2026-03-31'},'PL-17':{due:'2026-03-31'},'PL-18':{due:'2026-03-31'},'SA-01':{due:'2026-03-31'},'SA-02':{due:'2026-03-31'},'SA-03':{due:'2026-03-31'},'BM-01':{due:'2025-12-31',status:'Done'},'BM-02':{due:'2026-01-01',status:'Done'},'BM-04':{due:'2026-01-04',status:'Done'},'BM-05':{due:'2026-01-05'},'BM-06':{status:'WIP'},'OO-06':{status:'HOLD'}};
   tpl.forEach(function(t){if(o[t.id]){if(o[t.id].due)t.due=o[t.id].due;if(o[t.id].status)t.status=o[t.id].status}});return tpl;
 }
 
@@ -760,15 +810,14 @@ function updateThemeBtn(){document.getElementById('themeBtn').textContent=docume
 
 // APP TAB SWITCH
 function switchAppTab(tab){
-  document.getElementById('panelTasks').classList.toggle('active',tab==='tasks');
-  document.getElementById('panelTime').classList.toggle('active',tab==='time');
-  document.getElementById('panelAdhoc').classList.toggle('active',tab==='adhoc');
-  document.getElementById('appTabTasks').classList.toggle('active',tab==='tasks');
-  document.getElementById('appTabTime').classList.toggle('active',tab==='time');
-  document.getElementById('appTabAdhoc').classList.toggle('active',tab==='adhoc');
+  ['tasks','time','daily','adhoc'].forEach(function(t){
+    document.getElementById('panel'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+    document.getElementById('appTab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.toggle('active',t===tab);
+  });
   document.getElementById('courseSwitcher').style.display=tab==='tasks'?'flex':'none';
   document.getElementById('addTaskBtn').style.display=tab==='tasks'?'block':'none';
   if(tab==='time'){tmRefreshAll()}
+  if(tab==='daily'){dtRender()}
   if(tab==='adhoc'){adhocRender()}
 }
 
@@ -784,10 +833,10 @@ function deleteCourse(){if(Object.keys(allCourses).length<=1){showToast('Last co
 // TEAM
 function openTeamModal(){document.getElementById('fMemberName').value='';document.getElementById('fMemberColor').value=nextColor();document.getElementById('teamModalOverlay').classList.add('open')}
 function closeTeamModal(){document.getElementById('teamModalOverlay').classList.remove('open')}
-function addMember(){var n=document.getElementById('fMemberName').value.trim();if(!n){showToast('Name','error');return}if(MEMBERS[n]){showToast('Exists','error');return}var c=document.getElementById('fMemberColor').value;MEMBERS[n]={color:c,bg:colorToBg(c)};saveData();closeTeamModal();renderAll();tmRenderTeam();showToast(n+' added')}
+function addMember(){var n=document.getElementById('fMemberName').value.trim();if(!n){showToast('Name','error');return}if(MEMBERS[n]){showToast('Exists','error');return}var c=document.getElementById('fMemberColor').value;MEMBERS[n]={color:c,bg:colorToBg(c)};saveData();closeTeamModal();renderAll();if(document.getElementById('panelDaily').classList.contains('active'))dtRender();showToast(n+' added')}
 function openRemoveTeamModal(){var sel=document.getElementById('fRemoveMember');sel.innerHTML='';Object.keys(MEMBERS).forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});document.getElementById('removeTeamModalOverlay').classList.add('open')}
 function closeRemoveTeamModal(){document.getElementById('removeTeamModalOverlay').classList.remove('open')}
-function removeMember(){var n=document.getElementById('fRemoveMember').value;if(!n)return;if(!confirm('Remove '+n+'?'))return;delete MEMBERS[n];saveData();closeRemoveTeamModal();renderAll();tmRenderTeam();showToast(n+' removed')}
+function removeMember(){var n=document.getElementById('fRemoveMember').value;if(!n)return;if(!confirm('Remove '+n+'?'))return;delete MEMBERS[n];saveData();closeRemoveTeamModal();renderAll();if(document.getElementById('panelDaily').classList.contains('active'))dtRender();showToast(n+' removed')}
 
 // EXPORT
 function exportExcel(){var ts=getTasks(),rows=[['ID','Task','Section','Due','Status','Priority','Assignee','Reviewer','Blocked By','Notes']];ts.forEach(function(t){rows.push([t.id,'"'+t.name.replace(/"/g,'""')+'"',t.section,t.due,t.status,t.priority,'"'+t.assignee+'"',t.reviewer,t.blockedBy,'"'+(t.notes||'').replace(/"/g,'""')+'"'])});var csv=rows.map(function(r){return r.join(',')}).join('\n');var b=new Blob(['\ufeff'+csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=activeCourse.replace(/[^a-zA-Z0-9]/g,'_')+'_tasks.csv';a.click();showToast('Exported')}
@@ -880,45 +929,117 @@ var tmLiveClockInterval=null;
 var tmCurrentRecord=null;
 var tmOnBreak=false;
 var tmBreakStart=null;
+var tmAttendanceCache={};
+var unsubscribeTM=null;
 
-// ATTENDANCE STORAGE (localStorage — per device)
-function tmKey(user,date){return 'tma_'+user+'_'+date}
 function tmTodayStr(){return new Date().toISOString().split('T')[0]}
-function tmGetRecord(user,date){try{var r=localStorage.getItem(tmKey(user,date));return r?JSON.parse(r):null}catch(e){return null}}
-function tmSaveRecord(user,date,data){try{localStorage.setItem(tmKey(user,date),JSON.stringify(data))}catch(e){}}
-function tmGetHistory(user,days){
+
+// FIRESTORE ATTENDANCE STORAGE
+function tmKey(user,date){return user+'_'+date}
+
+async function tmSaveRecord(user,date,data){
+  var key=tmKey(user,date);
+  tmAttendanceCache[key]=data;
+  try{
+    await setDoc(doc(db,'attendance',key),{user:user,date:date,...data});
+  }catch(e){
+    // fallback localStorage
+    try{localStorage.setItem('tma_'+key,JSON.stringify(data))}catch(x){}
+  }
+}
+
+async function tmLoadTodayRecords(){
+  var today=tmTodayStr();
+  var members=getTeamMembers();
+  try{
+    var promises=members.map(function(m){
+      return getDoc(doc(db,'attendance',tmKey(m,today))).then(function(snap){
+        if(snap.exists())tmAttendanceCache[tmKey(m,today)]=snap.data();
+      });
+    });
+    await Promise.all(promises);
+  }catch(e){}
+}
+
+function tmGetRecord(user,date){
+  var key=tmKey(user,date);
+  if(tmAttendanceCache[key])return tmAttendanceCache[key];
+  // fallback localStorage
+  try{var r=localStorage.getItem('tma_'+key);if(r)return JSON.parse(r)}catch(e){}
+  return null;
+}
+
+async function tmGetHistory(user,days){
   var records=[];
-  for(var i=0;i<days;i++){var d=new Date();d.setDate(d.getDate()-i);var ds=d.toISOString().split('T')[0];var r=tmGetRecord(user,ds);if(r)records.push({date:ds,...r})}
-  return records;
+  var promises=[];
+  for(var i=0;i<days;i++){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var ds=d.toISOString().split('T')[0];
+    var key=tmKey(user,ds);
+    if(tmAttendanceCache[key]){records.push({date:ds,...tmAttendanceCache[key]});continue}
+    promises.push((function(dateStr){
+      return getDoc(doc(db,'attendance',tmKey(user,dateStr))).then(function(snap){
+        if(snap.exists()){tmAttendanceCache[tmKey(user,dateStr)]=snap.data();records.push({date:dateStr,...snap.data()})}
+        else{
+          // try localStorage fallback
+          try{var r=localStorage.getItem('tma_tma_'+user+'_'+dateStr);if(!r)r=localStorage.getItem('tma_'+user+'_'+dateStr);if(r){var parsed=JSON.parse(r);tmAttendanceCache[tmKey(user,dateStr)]=parsed;records.push({date:dateStr,...parsed})}}catch(x){}
+        }
+      }).catch(function(){});
+    })(ds));
+  }
+  await Promise.all(promises);
+  return records.sort(function(a,b){return b.date.localeCompare(a.date)});
+}
+
+// Live listener — when any team member clocks in/out, refresh team view
+function tmStartLiveListener(){
+  if(unsubscribeTM)unsubscribeTM();
+  var today=tmTodayStr();
+  // listen to today's attendance collection changes
+  var members=getTeamMembers();
+  members.forEach(function(m){
+    if(m===currentUser.displayName)return; // own record handled directly
+    onSnapshot(doc(db,'attendance',tmKey(m,today)),function(snap){
+      if(snap.exists()){
+        tmAttendanceCache[tmKey(m,today)]=snap.data();
+        if(document.getElementById('panelTime').classList.contains('active')){
+          tmRenderTeam();tmRenderStats();
+        }
+      }
+    },function(){});
+  });
 }
 
 // CLOCK IN
-function tmClockIn(){
+async function tmClockIn(){
   var today=tmTodayStr();
   var existing=tmGetRecord(currentUser.displayName,today);
   if(existing&&existing.in){showToast('Already clocked in!','error');return}
   var now=new Date();
   var record={in:now.toISOString(),out:null,breaks:[],totalBreak:0,note:''};
-  tmSaveRecord(currentUser.displayName,today,record);
+  tmAttendanceCache[tmKey(currentUser.displayName,today)]=record;
   tmCurrentRecord=record;
-  tmUpdateClockUI();tmStartTimer();showToast('Clocked in at '+tmFmtTime(now));tmRenderTeam();tmRenderStats();
+  tmUpdateClockUI();tmStartTimer();
+  await tmSaveRecord(currentUser.displayName,today,record);
+  showToast('Clocked in at '+tmFmtTime(now));tmRenderTeam();tmRenderStats();
 }
-function tmClockOut(){
+async function tmClockOut(){
   if(!tmCurrentRecord||!tmCurrentRecord.in){showToast('Not clocked in','error');return}
-  if(tmOnBreak){tmEndBreak()}
+  if(tmOnBreak){await tmEndBreak()}
   var now=new Date();
   tmCurrentRecord.out=now.toISOString();
   var worked=new Date(tmCurrentRecord.out)-new Date(tmCurrentRecord.in)-(tmCurrentRecord.totalBreak||0);
   tmCurrentRecord.workedMs=worked;
-  tmSaveRecord(currentUser.displayName,tmTodayStr(),tmCurrentRecord);
+  tmAttendanceCache[tmKey(currentUser.displayName,tmTodayStr())]=tmCurrentRecord;
   clearInterval(tmTimerInterval);tmTimerInterval=null;
   tmUpdateClockUI();
+  await tmSaveRecord(currentUser.displayName,tmTodayStr(),tmCurrentRecord);
   var h=Math.floor(worked/3600000),m=Math.floor((worked%3600000)/60000);
   showToast('Clocked out — '+h+'h '+m+'m worked');tmRenderTeam();tmRenderStats();
 }
 function tmToggleBreak(){if(!tmCurrentRecord||tmCurrentRecord.out)return;if(!tmOnBreak)tmStartBreak();else tmEndBreak()}
 function tmStartBreak(){tmOnBreak=true;tmBreakStart=new Date();document.getElementById('btnBreak').textContent='▶ Resume';document.getElementById('btnBreak').classList.add('active');showToast('Break started')}
-function tmEndBreak(){if(!tmBreakStart)return;var ms=new Date()-tmBreakStart;tmCurrentRecord.totalBreak=(tmCurrentRecord.totalBreak||0)+ms;tmCurrentRecord.breaks.push({start:tmBreakStart.toISOString(),end:new Date().toISOString(),ms:ms});tmSaveRecord(currentUser.displayName,tmTodayStr(),tmCurrentRecord);tmOnBreak=false;tmBreakStart=null;document.getElementById('btnBreak').textContent='☕ Break';document.getElementById('btnBreak').classList.remove('active');showToast('Break ended — '+Math.round(ms/60000)+'m')}
+async function tmEndBreak(){if(!tmBreakStart)return;var ms=new Date()-tmBreakStart;tmCurrentRecord.totalBreak=(tmCurrentRecord.totalBreak||0)+ms;tmCurrentRecord.breaks.push({start:tmBreakStart.toISOString(),end:new Date().toISOString(),ms:ms});tmOnBreak=false;tmBreakStart=null;document.getElementById('btnBreak').textContent='☕ Break';document.getElementById('btnBreak').classList.remove('active');tmAttendanceCache[tmKey(currentUser.displayName,tmTodayStr())]=tmCurrentRecord;await tmSaveRecord(currentUser.displayName,tmTodayStr(),tmCurrentRecord);showToast('Break ended — '+Math.round(ms/60000)+'m')}
 function tmStartTimer(){clearInterval(tmTimerInterval);tmTimerInterval=setInterval(function(){tmUpdateElapsed();tmUpdateClockUI()},1000)}
 function tmUpdateElapsed(){
   if(!tmCurrentRecord||!tmCurrentRecord.in)return;
@@ -1004,12 +1125,12 @@ function tmRenderTeam(){
   });
   document.getElementById('tmTeamGrid').innerHTML=h||'<div class="tm-empty">No team members found</div>';
 }
-function tmRenderHistory(){
+async function tmRenderHistory(){
   var days=parseInt(document.getElementById('tmHistDays').value)||30;
-  var records=tmGetHistory(currentUser.displayName,days);
+  var records=await tmGetHistory(currentUser.displayName,days);
   document.getElementById('tmHistName').textContent=currentUser.displayName;
   if(!records.length){document.getElementById('tmHistoryBody').innerHTML='<div class="tm-empty">No records yet</div>';return}
-  var h='<table class="att-table"><thead><tr><th>Date</th><th>Day</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th><th>Status</th></tr></thead><tbody>';
+  var h='<table class="att-table"><thead><tr><th>Date</th><th>Day</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th></tr></thead><tbody>';
   records.forEach(function(r){
     var d=new Date(r.date+'T12:00:00');
     var day=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()];
@@ -1019,26 +1140,29 @@ function tmRenderHistory(){
     var workedH=worked/3600000;
     var durCls=workedH>=TM_WORK_HOURS?'dur-ok':workedH>0?'dur-short':'';
     if(workedH>TM_WORK_HOURS+0.5)durCls='dur-over';
-    var status='Present',statusCls='ap-present';
-    if(r.in){var inTime=new Date(r.in),startTime=new Date(r.date+'T'+TM_START);if(inTime-startTime>TM_LATE_MINS*60000){status='Late';statusCls='ap-late'}if(!r.out){status='In Progress';statusCls='ap-prog'}if(workedH<TM_WORK_HOURS/2&&r.out){status='Half Day';statusCls='ap-half'}}
-    h+='<tr><td class="att-mono">'+tmFmtDateShort(r.date)+'</td><td style="color:var(--text3);font-size:12px">'+day+'</td><td class="att-time">'+inT+'</td><td class="att-time">'+outT+'</td><td class="att-time">'+breakT+'</td><td class="att-dur '+durCls+'">'+tmMsToHM(worked)+'</td><td><span class="att-pill '+statusCls+'">'+status+'</span></td></tr>';
+    h+='<tr><td class="att-mono">'+tmFmtDateShort(r.date)+'</td><td style="color:var(--text3);font-size:12px">'+day+'</td><td class="att-time">'+inT+'</td><td class="att-time">'+outT+'</td><td class="att-time">'+breakT+'</td><td class="att-dur '+durCls+'">'+tmMsToHM(worked)+'</td></tr>';
   });
   h+='</tbody></table>';document.getElementById('tmHistoryBody').innerHTML=h;
 }
-function tmRenderAdmin(){
+async function tmRenderAdmin(){
   var days=parseInt(document.getElementById('tmAdminDays').value)||30;
   var mf=document.getElementById('tmAdminMember').value;
   var members=getTeamMembers();
-  // populate filter
   var sel=document.getElementById('tmAdminMember'),cv=sel.value;
   sel.innerHTML='<option value="all">All Members</option>';
   members.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});
   sel.value=cv||'all';
+  document.getElementById('tmAdminBody').innerHTML='<div class="tm-empty">Loading...</div>';
   var allRows=[];
-  members.forEach(function(m){if(mf!=='all'&&m!==mf)return;tmGetHistory(m,days).forEach(function(r){allRows.push({member:m,...r})})});
+  var promises=members.map(async function(m){
+    if(mf!=='all'&&m!==mf)return;
+    var recs=await tmGetHistory(m,days);
+    recs.forEach(function(r){allRows.push({member:m,...r})});
+  });
+  await Promise.all(promises);
   allRows.sort(function(a,b){return b.date.localeCompare(a.date)});
   if(!allRows.length){document.getElementById('tmAdminBody').innerHTML='<div class="tm-empty">No records</div>';return}
-  var h='<table class="att-table"><thead><tr><th>Member</th><th>Date</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th><th>Status</th></tr></thead><tbody>';
+  var h='<table class="att-table"><thead><tr><th>Member</th><th>Date</th><th>In</th><th>Out</th><th>Break</th><th>Worked</th></tr></thead><tbody>';
   allRows.forEach(function(r){
     var meta=MEMBERS[r.member]||{color:'#999'};
     var inT=r.in?tmFmtTime(new Date(r.in)):'—',outT=r.out?tmFmtTime(new Date(r.out)):'—';
@@ -1046,10 +1170,7 @@ function tmRenderAdmin(){
     var worked=r.workedMs||(r.out?Math.max(0,new Date(r.out)-new Date(r.in)-(r.totalBreak||0)):0);
     var workedH=worked/3600000;
     var durCls=workedH>=TM_WORK_HOURS?'dur-ok':workedH>0?'dur-short':'';
-    var status='Present',statusCls='ap-present';
-    if(r.in){var inTime=new Date(r.in),startTime=new Date(r.date+'T'+TM_START);if(inTime-startTime>TM_LATE_MINS*60000){status='Late';statusCls='ap-late'}if(!r.out){status='In Progress';statusCls='ap-prog'}if(workedH<TM_WORK_HOURS/2&&r.out){status='Half Day';statusCls='ap-half'}}
-    else{status='Absent';statusCls='ap-absent'}
-    h+='<tr><td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:'+meta.color+';flex-shrink:0;display:inline-block"></span>'+r.member+'</span></td><td class="att-mono">'+tmFmtDateShort(r.date)+'</td><td class="att-time">'+inT+'</td><td class="att-time">'+outT+'</td><td class="att-time">'+breakT+'</td><td class="att-dur '+durCls+'">'+tmMsToHM(worked)+'</td><td><span class="att-pill '+statusCls+'">'+status+'</span></td></tr>';
+    h+='<tr><td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:'+meta.color+';flex-shrink:0;display:inline-block"></span>'+r.member+'</span></td><td class="att-mono">'+tmFmtDateShort(r.date)+'</td><td class="att-time">'+inT+'</td><td class="att-time">'+outT+'</td><td class="att-time">'+breakT+'</td><td class="att-dur '+durCls+'">'+tmMsToHM(worked)+'</td></tr>';
   });
   h+='</tbody></table>';document.getElementById('tmAdminBody').innerHTML=h;
 }
@@ -1058,11 +1179,18 @@ function setTmTab(tab,el){
   document.querySelectorAll('.tm-tab').forEach(function(t){t.classList.remove('active')});
   el.classList.add('active');
   if(tab==='history')tmRenderHistory();
-  if(tab==='admin'){tmRenderAdmin()}
+  if(tab==='admin')tmRenderAdmin();
 }
-function tmRefreshAll(){
-  tmUpdateGreeting();tmUpdateClockUI();tmRenderStats();tmRenderTeam();
-  if(tmCurrentRecord&&tmCurrentRecord.in&&!tmCurrentRecord.out&&!tmTimerInterval)tmStartTimer();
+async function tmRefreshAll(){
+  tmUpdateGreeting();tmUpdateClockUI();
+  await tmLoadTodayRecords();
+  // restore today's record for current user
+  var todayRecord=tmGetRecord(currentUser.displayName,tmTodayStr());
+  if(todayRecord&&todayRecord.in&&!todayRecord.out&&!tmCurrentRecord){
+    tmCurrentRecord=todayRecord;tmStartTimer();
+  }
+  tmUpdateClockUI();tmRenderStats();tmRenderTeam();
+  tmStartLiveListener();
 }
 
 // MANUAL ENTRY
@@ -1077,7 +1205,7 @@ function tmOpenManual(){
   document.getElementById('tmManualOverlay').classList.add('open');
 }
 function tmCloseManual(){document.getElementById('tmManualOverlay').classList.remove('open')}
-function tmSaveManual(){
+async function tmSaveManual(){
   var user=document.getElementById('tmManualUser').value;
   var date=document.getElementById('tmManualDate').value;
   var inT=document.getElementById('tmManualIn').value;
@@ -1087,20 +1215,24 @@ function tmSaveManual(){
   if(!date||!inT||!outT){showToast('Fill all fields','error');return}
   var inDt=new Date(date+'T'+inT),outDt=new Date(date+'T'+outT);
   var breakMs=breakMins*60000,workedMs=Math.max(0,outDt-inDt-breakMs);
-  tmSaveRecord(user,date,{in:inDt.toISOString(),out:outDt.toISOString(),breaks:[],totalBreak:breakMs,workedMs:workedMs,note:note});
-  tmCloseManual();tmRenderAdmin();tmRenderTeam();tmRenderStats();showToast('Entry saved for '+user);
+  var record={in:inDt.toISOString(),out:outDt.toISOString(),breaks:[],totalBreak:breakMs,workedMs:workedMs,note:note};
+  tmAttendanceCache[tmKey(user,date)]=record;
+  await tmSaveRecord(user,date,record);
+  tmCloseManual();tmRenderTeam();tmRenderStats();showToast('Entry saved for '+user);
 }
 
 // EXPORT
-function tmExportMy(){
+async function tmExportMy(){
   var days=parseInt(document.getElementById('tmHistDays').value)||30;
-  var records=tmGetHistory(currentUser.displayName,days).map(function(r){return{member:currentUser.displayName,...r}});
-  tmDoExport(records,'MyAttendance');
+  var records=await tmGetHistory(currentUser.displayName,days);
+  var rows=records.map(function(r){return{member:currentUser.displayName,...r}});
+  tmDoExport(rows,'MyAttendance');
 }
-function tmExportAll(){
+async function tmExportAll(){
   var days=parseInt(document.getElementById('tmAdminDays').value)||30;
   var rows=[];
-  getTeamMembers().forEach(function(m){tmGetHistory(m,days).forEach(function(r){rows.push({member:m,...r})})});
+  var promises=getTeamMembers().map(async function(m){var recs=await tmGetHistory(m,days);recs.forEach(function(r){rows.push({member:m,...r})})});
+  await Promise.all(promises);
   rows.sort(function(a,b){return b.date.localeCompare(a.date)});
   tmDoExport(rows,'TeamAttendance');
 }
@@ -1133,7 +1265,7 @@ function tmUpdateGreeting(){
 }
 
 // MODAL CLOSE ON BACKDROP
-['modalOverlay','courseModalOverlay','teamModalOverlay','removeTeamModalOverlay','assetModalOverlay','userMgmtOverlay','tmManualOverlay','adhocModalOverlay'].forEach(function(id){
+['modalOverlay','courseModalOverlay','teamModalOverlay','removeTeamModalOverlay','assetModalOverlay','userMgmtOverlay','tmManualOverlay','adhocModalOverlay','dtModalOverlay'].forEach(function(id){
   document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')})
 });
 
@@ -1160,7 +1292,224 @@ function showApp(){
     // update team view every 30s
     if(now.getSeconds()===0)tmRenderTeam();
   },1000);
-  loadData().then(function(){renderAll();startLiveListener();tmRenderStats();tmRenderTeam();adhocLoadFromFirestore().then(function(){adhocStartListener()})});
+  loadData().then(function(){renderAll();startLiveListener();tmRenderStats();tmRenderTeam();
+    adhocLoadFromFirestore().then(function(){adhocStartListener()});
+    dtLoadFromFirestore().then(function(){dtStartListener();dtScheduleMidnightReset()});
+  });
+}
+
+// ============================================================
+// DAILY TASKS
+// ============================================================
+var dtTasks=[];
+var dtEditId=null;
+var dtSaving=false;
+var unsubscribeDaily=null;
+var dtMidnightTimer=null;
+
+// Daily task templates — these are the permanent tasks that reset every day
+var DT_TEMPLATE=[
+  {id:'DA-01',name:'One on One daily Msg Linkedin from Ankit id',section:'General',assignee:'Ankit'},
+  {id:'DA-02',name:'Daily Email to all the audience',section:'General',assignee:'Sachin'},
+  {id:'DA-03',name:'Facebook Group Posting',section:'General',assignee:'Sachin'},
+  {id:'DA-04',name:'Linkedin Group Posting',section:'General',assignee:'Sachin'},
+  {id:'DA-05',name:'Daily Post on Social Media | Linkedin',section:'General',assignee:'Sachin'},
+  {id:'DA-06',name:'Daily Post on Social Media | Instagram',section:'General',assignee:'Sachin'},
+  {id:'DA-07',name:'Daily Post on Social Media | Facebook',section:'General',assignee:'Sachin'},
+  {id:'DA-08',name:'One on One daily Msg Linkedin | Abdul',section:'General',assignee:'Abdul'},
+  {id:'DA-09',name:'One on One daily Msg Linkedin from Sachin',section:'General',assignee:'Sachin'},
+  {id:'DA-10',name:'One on One daily Msg Linkedin from Ashish',section:'General',assignee:'Ashish'},
+  {id:'DA-11',name:'Daily Post on Social Media | Linkedin',section:'General',assignee:'Ashish'},
+  {id:'DA-12',name:'Linkedin Group Posting',section:'General',assignee:'Ashish'},
+  {id:'DA-13',name:'Daily Post on Social Media | Linkedin',section:'General',assignee:'Abdul'},
+  {id:'DA-14',name:'Linkedin Group Posting',section:'General',assignee:'Abdul'},
+  {id:'DA-15',name:'One on One daily Msg Linkedin from Shubham',section:'General',assignee:'Shubham'},
+  {id:'DA-16',name:'Daily Post on Social Media | Linkedin',section:'General',assignee:'Shubham'},
+  {id:'DA-17',name:'Linkedin Group Posting',section:'General',assignee:'Shubham'}
+];
+
+function dtTodayStr(){return new Date().toISOString().split('T')[0]}
+
+// Firestore key — daily tasks are per-date so they auto reset when date changes
+function dtFirestoreKey(){return 'daily_'+dtTodayStr()}
+
+async function dtSaveToFirestore(){
+  if(dtSaving)return;dtSaving=true;syncStart();
+  try{
+    await setDoc(doc(db,'appdata',dtFirestoreKey()),{data:dtTasks,date:dtTodayStr()});
+    syncDone();
+  }catch(e){
+    syncError('Daily save failed');
+    try{localStorage.setItem('eg9_daily_'+dtTodayStr(),JSON.stringify(dtTasks))}catch(x){}
+  }finally{dtSaving=false}
+}
+
+async function dtLoadFromFirestore(){
+  var today=dtTodayStr();
+  try{
+    var snap=await getDoc(doc(db,'appdata',dtFirestoreKey()));
+    if(snap.exists()&&snap.data().date===today){
+      var loaded=snap.data().data||[];
+      // Force reset if task count doesn't match template (template was updated)
+      if(loaded.length>0&&loaded.filter(function(t){return t.templateId}).length>0){
+        var templateIds=DT_TEMPLATE.map(function(t){return t.id});
+        var hasAllTemplates=templateIds.every(function(id){return loaded.some(function(t){return t.templateId===id})});
+        if(hasAllTemplates){dtTasks=loaded;return;}
+      }else if(loaded.length>0){
+        dtTasks=loaded;return;
+      }
+    }
+  }catch(e){
+    try{var d=localStorage.getItem('eg9_daily_'+today);if(d){dtTasks=JSON.parse(d);return}}catch(x){}
+  }
+  // Seed fresh from updated template
+  dtTasks=DT_TEMPLATE.map(function(t){
+    return{id:t.id+'_'+today,templateId:t.id,name:t.name,note:'',assignee:t.assignee,section:'General',done:false,createdAt:new Date().toISOString()};
+  });
+  await dtSaveToFirestore();
+}
+
+function dtStartListener(){
+  if(unsubscribeDaily)unsubscribeDaily();
+  unsubscribeDaily=onSnapshot(doc(db,'appdata',dtFirestoreKey()),function(snap){
+    if(snap.exists()&&snap.data().date===dtTodayStr()&&!dtSaving){
+      dtTasks=snap.data().data||[];
+      if(document.getElementById('panelDaily').classList.contains('active'))dtRender();
+    }
+  },function(){});
+}
+
+// MIDNIGHT RESET — schedule reset at 12:00 AM every day
+function dtScheduleMidnightReset(){
+  if(dtMidnightTimer)clearTimeout(dtMidnightTimer);
+  var now=new Date();
+  var midnight=new Date(now);
+  midnight.setDate(midnight.getDate()+1);
+  midnight.setHours(0,0,0,0);
+  var msUntilMidnight=midnight-now;
+  dtMidnightTimer=setTimeout(async function(){
+    // Reset tasks for new day
+    await dtLoadFromFirestore();
+    // restart listener for new day's key
+    dtStartListener();
+    // re-render if on daily tab
+    if(document.getElementById('panelDaily').classList.contains('active'))dtRender();
+    showToast('Daily tasks reset for new day! 🌅');
+    // Schedule next reset
+    dtScheduleMidnightReset();
+  },msUntilMidnight);
+}
+
+var DT_SECTIONS=['General'];
+var DT_SECTION_COLORS={'General':'var(--brand)'};
+
+function dtRenderAssigneeProgress(){
+  var members=getTeamMembers();
+  var h='<div style="font-weight:600;font-size:14px;margin-bottom:12px;color:var(--text)">Progress by Assignee</div><div class="assignee-progress-grid">';
+  members.forEach(function(name){
+    var tasks=dtTasks.filter(function(t){return t.assignee===name});
+    if(!tasks.length)return;
+    var meta=MEMBERS[name]||{color:'#999',bg:'rgba(150,150,150,.1)'};
+    var total=tasks.length;
+    var done=tasks.filter(function(t){return t.done}).length;
+    var pending=total-done;
+    var pct=total?Math.round(done/total*100):0;
+    h+='<div class="ap-card">'+
+      '<div class="ap-card-name"><div class="avatar" style="background:'+meta.bg+';color:'+meta.color+';width:24px;height:24px;font-size:11px">'+name[0]+'</div>'+name+'</div>'+
+      '<div class="ap-card-stats" style="font-size:12px;color:var(--text2);line-height:2">'+
+        'Total: <strong>'+total+'</strong><br>'+
+        'Done: <strong style="color:var(--green)">'+done+'</strong><br>'+
+        'Pending: <strong style="color:var(--red)">'+pending+'</strong>'+
+      '</div>'+
+      '<div class="ap-card-bar"><div class="ap-card-fill" style="width:'+pct+'%;background:'+(pct===100?'var(--green)':'var(--brand)')+'"></div></div>'+
+      '<div class="ap-card-pct">'+pct.toFixed(1)+'%</div>'+
+    '</div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function dtRender(){
+  document.getElementById('dtDateDisplay').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var total=dtTasks.length,done=dtTasks.filter(function(t){return t.done}).length,pending=total-done,prog=Math.round((done/Math.max(total,1))*100);
+  document.getElementById('dtStats').innerHTML=
+    '<div class="dt-stat dst-total"><div class="stat-label">Total Tasks</div><div class="stat-value">'+total+'</div></div>'+
+    '<div class="dt-stat dst-done"><div class="stat-label">Completed</div><div class="stat-value">'+done+'</div></div>'+
+    '<div class="dt-stat dst-pending"><div class="stat-label">Pending</div><div class="stat-value">'+pending+'</div></div>'+
+    '<div class="dt-stat dst-progress"><div class="stat-label">Progress</div><div class="stat-value">'+prog+'%</div></div>';
+
+  // Progress by Assignee section
+  var assigneeHtml='<div class="adhoc-progress-section" style="margin-bottom:20px">'+dtRenderAssigneeProgress()+'</div>';
+
+  // Flat task list — no section grouping
+  var h='<div class="dt-section"><div class="dt-section-header" style="border-left:3px solid var(--brand)">'+
+    '<span class="dt-section-title">📋 All Daily Tasks</span>'+
+    '<span class="dt-section-count">'+done+'/'+total+'</span>'+
+    '<button class="dt-add-btn" onclick="dtOpenModal()">+ Add Task</button></div>';
+
+  if(!dtTasks.length){h+='<div class="dt-empty">No tasks. Click "+ Add Task" to get started.</div>'}
+  else{
+    dtTasks.forEach(function(t){
+      var meta=MEMBERS[t.assignee]||{color:'#999',bg:'rgba(150,150,150,.1)'};
+      h+='<div class="dt-task-row">'+
+        '<input type="checkbox" class="dt-checkbox" '+(t.done?'checked':'')+' onchange="dtToggle(\''+t.id+'\',this.checked)">'+
+        '<div style="flex:1"><div class="dt-task-name'+(t.done?' done':'')+'">'+t.name+'</div>'+(t.note?'<div class="dt-task-note">💬 '+t.note+'</div>':'')+'</div>'+
+        (t.assignee?'<span class="dt-task-assignee" style="background:'+meta.bg+';color:'+meta.color+'">'+t.assignee+'</span>':'')+
+        '<div class="dt-task-actions">'+
+          '<button class="action-btn" onclick="dtEdit(\''+t.id+'\')">✏️</button>'+
+          '<button class="action-btn delete" onclick="dtDelete(\''+t.id+'\')">✕</button>'+
+        '</div></div>';
+    });
+  }
+  h+='</div>';
+  document.getElementById('dtSections').innerHTML=assigneeHtml+h;
+}
+
+async function dtToggle(id,checked){
+  var t=dtTasks.find(function(x){return x.id===id});
+  if(!t)return;
+  t.done=checked;t.doneAt=checked?new Date().toISOString():null;
+  await dtSaveToFirestore();dtRender();
+}
+function dtDelete(id){
+  if(!confirm('Delete this task? It will come back tomorrow on reset.'))return;
+  dtTasks=dtTasks.filter(function(x){return x.id!==id});
+  dtSaveToFirestore();dtRender();showToast('Deleted','error');
+}
+function dtEdit(id){
+  var t=dtTasks.find(function(x){return x.id===id});if(!t)return;
+  dtEditId=id;
+  document.getElementById('dtModalTitle').textContent='Edit Daily Task';
+  document.getElementById('fDtName').value=t.name;
+  document.getElementById('fDtNote').value=t.note||'';
+  var sel=document.getElementById('fDtAssignee');sel.innerHTML='<option value="">— None —</option>';
+  getTeamMembers().forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});
+  sel.value=t.assignee||'';
+  document.getElementById('dtModalOverlay').classList.add('open');
+}
+function dtOpenModal(){
+  dtEditId=null;
+  document.getElementById('dtModalTitle').textContent='Add Daily Task';
+  document.getElementById('fDtName').value='';
+  document.getElementById('fDtNote').value='';
+  var sel=document.getElementById('fDtAssignee');sel.innerHTML='<option value="">— None —</option>';
+  getTeamMembers().forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});
+  sel.value=currentUser.displayName||'';
+  document.getElementById('dtModalOverlay').classList.add('open');
+}
+function dtOpenModalSection(sec){dtOpenModal()}
+function dtCloseModal(){document.getElementById('dtModalOverlay').classList.remove('open');dtEditId=null}
+async function dtSaveTask(){
+  var name=document.getElementById('fDtName').value.trim();
+  if(!name){showToast('Task name required','error');return}
+  var task={name:name,note:document.getElementById('fDtNote').value.trim(),assignee:document.getElementById('fDtAssignee').value,section:'General',done:false,createdAt:new Date().toISOString()};
+  if(dtEditId){
+    var idx=dtTasks.findIndex(function(t){return t.id===dtEditId});
+    if(idx>=0){task.id=dtEditId;task.done=dtTasks[idx].done;task.createdAt=dtTasks[idx].createdAt;task.templateId=dtTasks[idx].templateId;dtTasks[idx]=task;showToast('Updated')}
+  }else{
+    task.id='dt_'+Date.now();dtTasks.push(task);showToast('Task added');
+  }
+  await dtSaveToFirestore();dtCloseModal();dtRender();
 }
 
 // ============================================================
@@ -1438,7 +1787,8 @@ window.tmClockIn=tmClockIn;window.tmClockOut=tmClockOut;window.tmToggleBreak=tmT
 window.setTmTab=setTmTab;window.tmRenderHistory=tmRenderHistory;window.tmRenderAdmin=tmRenderAdmin;
 window.tmOpenManual=tmOpenManual;window.tmCloseManual=tmCloseManual;window.tmSaveManual=tmSaveManual;
 window.tmExportMy=tmExportMy;window.tmExportAll=tmExportAll;
-window.adhocOpenModal=adhocOpenModal;window.adhocCloseModal=adhocCloseModal;window.adhocSaveTask=adhocSaveTask;
+window.dtOpenModal=dtOpenModal;window.dtOpenModalSection=dtOpenModalSection;window.dtCloseModal=dtCloseModal;
+window.dtSaveTask=dtSaveTask;window.dtToggle=dtToggle;window.dtDelete=dtDelete;window.dtEdit=dtEdit;window.adhocCloseModal=adhocCloseModal;window.adhocSaveTask=adhocSaveTask;
 window.adhocRender=adhocRender;window.adhocChangeProgress=adhocChangeProgress;
 window.adhocDeleteTask=adhocDeleteTask;window.adhocEditTask=adhocEditTask;window.adhocExport=adhocExport;
 
