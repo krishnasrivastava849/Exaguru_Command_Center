@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ExaGuru — Command Center v11</title>
+<title>ExaGuru — Command Center v12</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -375,7 +375,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14
 <div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-card">
     <div class="login-logo">Exa<span>Guru</span></div>
-    <div class="login-sub">Command Center v11</div>
+    <div class="login-sub">Command Center v12</div>
     <input class="login-input" id="loginUser" placeholder="Username" autofocus onkeydown="if(event.key==='Enter')doLogin()">
     <input class="login-input" id="loginPass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
@@ -720,29 +720,30 @@ async function createUser(){
   if(!u||!p){showToast('Required','error');return}if(users[u]){showToast('Exists','error');return}
   var displayName=u.charAt(0).toUpperCase()+u.slice(1);
   users[u]={hash:await hashPass(p),role:r,displayName:displayName};
-  // Auto-add to MEMBERS so they appear in all dropdowns, team views, assignee lists
+  // Auto-add to MEMBERS — save directly to Firestore bypassing batch
   if(!MEMBERS[displayName]){
     var c=nextColor();
     MEMBERS[displayName]={color:c,bg:colorToBg(c)};
-    await saveData(); // save MEMBERS to Firestore
+    try{await setDoc(doc(db,'appdata','members'),{data:MEMBERS});}catch(e){}
   }
   await saveUsersToFirestore();
   document.getElementById('fNewUser').value='';document.getElementById('fNewPass').value='';
-  renderUserList();renderAll();tmRenderTeam();
+  renderUserList();renderAll();
+  if(document.getElementById('panelTime').classList.contains('active'))tmRenderTeam();
   if(document.getElementById('panelDaily').classList.contains('active'))dtRender();
-  showToast('User '+displayName+' created');
+  showToast('User '+displayName+' created and added to team');
 }
 window._deleteUser=async function(u){
   if(!confirm('Delete user '+u+'?'))return;
   var displayName=users[u]?users[u].displayName:null;
   delete users[u];
-  // Also remove from MEMBERS if they were auto-added
   if(displayName&&MEMBERS[displayName]){
     delete MEMBERS[displayName];
-    await saveData();
+    try{await setDoc(doc(db,'appdata','members'),{data:MEMBERS});}catch(e){}
   }
   await saveUsersToFirestore();
-  renderUserList();renderAll();tmRenderTeam();
+  renderUserList();renderAll();
+  if(document.getElementById('panelTime').classList.contains('active'))tmRenderTeam();
   if(document.getElementById('panelDaily').classList.contains('active'))dtRender();
   showToast(u+' deleted');
 }
@@ -1726,6 +1727,11 @@ function adhocDeleteTask(id){
   adhocTasks=adhocTasks.filter(function(t){return t.id!==id});
   adhocSaveToFirestore();adhocRender();showToast('Task deleted','error');
 }
+function adhocPopulateAssignees(selectedVal){
+  var sel=document.getElementById('fAdhocAssignee');sel.innerHTML='';
+  getTeamMembers().forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});
+  if(selectedVal)sel.value=selectedVal;
+}
 function adhocEditTask(id){
   var t=adhocTasks.find(function(x){return x.id===id});
   if(!t)return;
@@ -1733,7 +1739,7 @@ function adhocEditTask(id){
   document.getElementById('adhocModalTitle').textContent='Edit Adhoc Task';
   document.getElementById('fAdhocName').value=t.name;
   document.getElementById('fAdhocDesc').value=t.description||'';
-  document.getElementById('fAdhocAssignee').value=t.assignee;
+  adhocPopulateAssignees(t.assignee);
   document.getElementById('fAdhocPriority').value=t.priority;
   document.getElementById('fAdhocEndDate').value=t.endDate;
   document.getElementById('fAdhocProgress').value=t.progress;
@@ -1749,16 +1755,15 @@ function adhocOpenModal(){
   document.getElementById('fAdhocPriority').value='Medium';
   document.getElementById('fAdhocEndDate').value='';
   document.getElementById('fAdhocProgress').value='Pending';
-  // populate assignee dropdown
-  var sel=document.getElementById('fAdhocAssignee');sel.innerHTML='';
-  getTeamMembers().forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});
+  adhocPopulateAssignees('');
   document.getElementById('adhocModalOverlay').classList.add('open');
 }
 function adhocCloseModal(){document.getElementById('adhocModalOverlay').classList.remove('open');adhocEditId=null}
-function adhocSaveTask(){
+async function adhocSaveTask(){
   var name=document.getElementById('fAdhocName').value.trim();
   var endDate=document.getElementById('fAdhocEndDate').value;
-  if(!name||!endDate){showToast('Task name and end date required','error');return}
+  if(!name){showToast('Task name required','error');return}
+  if(!endDate){showToast('End date required','error');return}
   var task={
     name:name,
     description:document.getElementById('fAdhocDesc').value.trim(),
@@ -1775,7 +1780,7 @@ function adhocSaveTask(){
   }else{
     task.id='adhoc_'+Date.now();adhocTasks.push(task);showToast('Task added');
   }
-  adhocSaveToFirestore();adhocCloseModal();adhocRender();
+  await adhocSaveToFirestore();adhocCloseModal();adhocRender();
 }
 
 // EXPORT
@@ -1808,7 +1813,8 @@ window.setTmTab=setTmTab;window.tmRenderHistory=tmRenderHistory;window.tmRenderA
 window.tmOpenManual=tmOpenManual;window.tmCloseManual=tmCloseManual;window.tmSaveManual=tmSaveManual;
 window.tmExportMy=tmExportMy;window.tmExportAll=tmExportAll;
 window.dtOpenModal=dtOpenModal;window.dtOpenModalSection=dtOpenModalSection;window.dtCloseModal=dtCloseModal;
-window.dtSaveTask=dtSaveTask;window.dtToggle=dtToggle;window.dtDelete=dtDelete;window.dtEdit=dtEdit;window.adhocCloseModal=adhocCloseModal;window.adhocSaveTask=adhocSaveTask;
+window.dtSaveTask=dtSaveTask;window.dtToggle=dtToggle;window.dtDelete=dtDelete;window.dtEdit=dtEdit;
+window.adhocOpenModal=adhocOpenModal;window.adhocCloseModal=adhocCloseModal;window.adhocSaveTask=adhocSaveTask;
 window.adhocRender=adhocRender;window.adhocChangeProgress=adhocChangeProgress;
 window.adhocDeleteTask=adhocDeleteTask;window.adhocEditTask=adhocEditTask;window.adhocExport=adhocExport;
 
