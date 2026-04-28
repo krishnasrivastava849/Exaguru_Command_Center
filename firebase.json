@@ -1,23 +1,16 @@
 {
   "hosting": {
-<<<<<<< HEAD
     "public": "Y",
-=======
-    "public": "y",
->>>>>>> 5055ff9 (v6 - Initial setup)
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-<<<<<<< HEAD
     ],
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
-=======
->>>>>>> 5055ff9 (v6 - Initial setup)
     ]
   }
 }
